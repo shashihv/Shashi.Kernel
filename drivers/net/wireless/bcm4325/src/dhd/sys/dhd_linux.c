@@ -40,6 +40,7 @@
 #include <linux/ethtool.h>
 #include <linux/fcntl.h>
 #include <linux/fs.h>
+#include <linux/inetdevice.h>
 
 #include <asm/uaccess.h>
 #include <asm/unaligned.h>
@@ -54,7 +55,7 @@
 #include <dhd_bus.h>
 #include <dhd_proto.h>
 #include <dhd_dbg.h>
-
+#include <linux/mutex.h>
 
 /* LGE_CHANGE_S [yoohoo@lge.com] 2009-03-05, for gpio set in dhd_linux */
 #if defined(CONFIG_LGE_BCM432X_PATCH)
@@ -69,6 +70,13 @@
 	alloc_netdev(sizeof_priv, "wlan%d", ether_setup)
 #endif /* CONFIG_LGE_BCM432X_PATCH */
 /* LGE_CHANGE_E [yoohoo@lge.com] 2009-03-30, change ifname to wlan%d */
+
+static int dhd_device_event(struct notifier_block *this, unsigned long event,
+                               void *ptr);
+
+static struct notifier_block dhd_notifier = {
+       .notifier_call = dhd_device_event
+};
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP)
 #include <linux/suspend.h>
@@ -123,7 +131,7 @@ typedef struct dhd_info {
 	/* OS/stack specifics */
 	dhd_if_t *iflist[DHD_MAX_IFS];
 
-	struct semaphore proto_sem;
+	struct mutex proto_sem;
 	wait_queue_head_t ioctl_resp_wait;
 	struct timer_list timer;
 	bool wd_timer_valid;
@@ -132,7 +140,7 @@ typedef struct dhd_info {
 	spinlock_t	txqlock;
 	/* Thread based operation */
 	bool threads_only;
-	struct semaphore sdsem;
+	struct mutex sdsem;
 	long watchdog_pid;
 	struct semaphore watchdog_sem;
 	struct completion watchdog_exited;
@@ -294,18 +302,22 @@ static int dhd_wl_host_event(dhd_info_t *dhd, int *ifidx, void *pktdata,
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP) && 1
 static int dhd_sleep_pm_callback(struct notifier_block *nfb, unsigned long action, void *ignored)
 {
+	int ret = NOTIFY_DONE;
+
 	switch (action)
 	{
 		case PM_HIBERNATION_PREPARE:
 		case PM_SUSPEND_PREPARE:
 			dhd_mmc_suspend = TRUE;
-			return NOTIFY_OK;
+			ret = NOTIFY_OK;
+      			break;
 		case PM_POST_HIBERNATION:
 		case PM_POST_SUSPEND:
 			dhd_mmc_suspend = FALSE;
-		return NOTIFY_OK;
+		ret = NOTIFY_OK;
 	}
-	return 0;
+	smp_mb();
+	return ret;
 }
 
 static struct notifier_block dhd_sleep_pm_notifier = {
@@ -1676,7 +1688,7 @@ dhd_attach(osl_t *osh, struct dhd_bus *bus, uint bus_hdrlen)
 	net->netdev_ops = NULL;
 #endif
 
-	init_MUTEX(&dhd->proto_sem);
+	mutex_init(&dhd->proto_sem);
 	/* Initialize other structure content */
 	init_waitqueue_head(&dhd->ioctl_resp_wait);
 	init_waitqueue_head(&dhd->ctrl_wait);
@@ -1712,7 +1724,7 @@ dhd_attach(osl_t *osh, struct dhd_bus *bus, uint bus_hdrlen)
 	dhd->timer.function = dhd_watchdog;
 
 	/* Initialize thread based operation and lock */
-	init_MUTEX(&dhd->sdsem);
+	mutex_init(&dhd->sdsem);
 	if ((dhd_watchdog_prio >= 0) && (dhd_dpc_prio >= 0)) {
 		dhd->threads_only = TRUE;
 	}
@@ -1762,6 +1774,8 @@ dhd_attach(osl_t *osh, struct dhd_bus *bus, uint bus_hdrlen)
 	WAKE_LOCK_INIT(&dhd->pub, WAKE_LOCK_TMOUT, "dhd_wake_lock");
 	WAKE_LOCK_INIT(&dhd->pub, WAKE_LOCK_LINK_DOWN_TMOUT, "dhd_wake_lock_link_dw_event");
 
+	register_inetaddr_notifier(&dhd_notifier);
+
 	return &dhd->pub;
 
 fail:
@@ -1784,6 +1798,8 @@ dhd_bus_start(dhd_pub_t *dhdp)
 
 	DHD_TRACE(("%s: \n", __FUNCTION__));
 
+	dhd_os_sdlock(dhdp);
+
 	/* try to download image and nvram to the dongle */
 	if  (dhd->pub.busstate == DHD_BUS_DOWN) {
 		WAKE_LOCK_INIT(dhdp, WAKE_LOCK_DOWNLOAD, "dhd_bus_start");
@@ -1794,6 +1810,8 @@ dhd_bus_start(dhd_pub_t *dhdp)
 			           __FUNCTION__, fw_path, nv_path));
 			WAKE_UNLOCK(dhdp, WAKE_LOCK_DOWNLOAD);
 			WAKE_LOCK_DESTROY(dhdp, WAKE_LOCK_DOWNLOAD);
+			
+			dhd_os_sdunlock(dhdp);			
 			return -1;
 		}
 
@@ -1806,8 +1824,9 @@ dhd_bus_start(dhd_pub_t *dhdp)
 	dhd_os_wd_timer(&dhd->pub, dhd_watchdog_ms);
 
 	/* Bring up the bus */
-	if ((ret = dhd_bus_init(&dhd->pub, TRUE)) != 0) {
+	if ((ret = dhd_bus_init(&dhd->pub, FALSE)) != 0) {
 		DHD_ERROR(("%s, dhd_bus_init failed %d\n", __FUNCTION__, ret));
+		dhd_os_sdunlock(dhdp);
 		return ret;
 	}
 
@@ -1818,6 +1837,7 @@ dhd_bus_start(dhd_pub_t *dhdp)
 		del_timer(&dhd->timer);
 		dhd->wd_timer_valid = FALSE;
 		DHD_ERROR(("%s Host failed to resgister for OOB\n", __FUNCTION__));
+		dhd_os_sdunlock(dhdp);
 		return -ENODEV;
 	}
 
@@ -1832,8 +1852,11 @@ dhd_bus_start(dhd_pub_t *dhdp)
 		del_timer(&dhd->timer);
 		dhd->wd_timer_valid = FALSE;
 		DHD_ERROR(("%s failed bus is not ready\n", __FUNCTION__));
+		dhd_os_sdunlock(dhdp);
 		return -ENODEV;
 	}
+
+	dhd_os_sdunlock(dhdp);
 
 	/* Bus is ready, do any protocol initialization */
 	if ((ret = dhd_prot_init(&dhd->pub)) < 0)
@@ -1885,6 +1908,49 @@ static struct net_device_ops dhd_ops_virt = {
     .ndo_set_multicast_list = dhd_set_multicast_list
 };
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 31)) */
+
+static int dhd_device_event(struct notifier_block *this, unsigned long event,
+                               void *ptr)
+{
+       struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
+       dhd_info_t *dhd;
+       dhd_pub_t *dhd_pub;
+
+       if (!ifa)
+               return NOTIFY_DONE;
+
+       dhd = *(dhd_info_t **)netdev_priv(ifa->ifa_dev->dev);
+       dhd_pub = &dhd->pub;
+
+#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 31))
+       if (ifa->ifa_dev->dev->netdev_ops == &dhd_ops_pri) {
+#else
+       if (ifa->ifa_dev->dev->open == &dhd_open) {
+#endif
+               switch (event) {
+               case NETDEV_UP:
+                       DHD_TRACE(("%s: [%s] Up IP: 0x%x\n",
+                           __FUNCTION__, ifa->ifa_label, ifa->ifa_address));
+
+                       dhd_arp_cleanup(dhd_pub);
+                       break;
+
+               case NETDEV_DOWN:
+                       DHD_TRACE(("%s: [%s] Down IP: 0x%x\n",
+                           __FUNCTION__, ifa->ifa_label, ifa->ifa_address));
+
+                       dhd_arp_cleanup(dhd_pub);
+                       break;
+
+               default:
+                       DHD_TRACE(("%s: [%s] Event: %lu\n",
+                           __FUNCTION__, ifa->ifa_label, event));
+                       break;
+               }
+       }
+       return NOTIFY_DONE;
+}
+
 int
 dhd_net_attach(dhd_pub_t *dhdp, int ifidx)
 {
@@ -2014,6 +2080,8 @@ dhd_detach(dhd_pub_t *dhdp)
 	if (dhd) {
 		dhd_if_t *ifp;
 		int i;
+
+		unregister_inetaddr_notifier(&dhd_notifier);
 
 		for (i = 1; i < DHD_MAX_IFS; i++)
 			if (dhd->iflist[i])
@@ -2170,7 +2238,7 @@ dhd_os_proto_block(dhd_pub_t * pub)
 	dhd_info_t * dhd = (dhd_info_t *)(pub->info);
 
 	if (dhd) {
-		down(&dhd->proto_sem);
+		mutex_lock(&dhd->proto_sem);
 		return 1;
 	}
 
@@ -2183,7 +2251,7 @@ dhd_os_proto_unblock(dhd_pub_t * pub)
 	dhd_info_t * dhd = (dhd_info_t *)(pub->info);
 
 	if (dhd) {
-		up(&dhd->proto_sem);
+		mutex_unlock(&dhd->proto_sem);
 		return 1;
 	}
 
@@ -2209,15 +2277,18 @@ dhd_os_ioctl_resp_wait(dhd_pub_t * pub, uint * condition, bool * pending)
 	DECLARE_WAITQUEUE(wait, current);
 	int timeout = dhd_ioctl_timeout_msec;
 
-	/* Convert timeout in millsecond to jiffies */
-	timeout = timeout * HZ / 1000;
+	/* timeout = timeout * HZ / 1000; */
+  	timeout = msecs_to_jiffies(timeout);
 
 	/* Wait until control frame is available */
 	add_wait_queue(&dhd->ioctl_resp_wait, &wait);
 	set_current_state(TASK_INTERRUPTIBLE);
 
-	while (!(*condition) && (!signal_pending(current) && timeout))
+	smp_mb();
+  	while (!(*condition) && (!signal_pending(current) && timeout)) {
 		timeout = schedule_timeout(timeout);
+		smp_mb();
+  	}
 
 	if (signal_pending(current))
 		* pending = TRUE;
@@ -2245,18 +2316,30 @@ dhd_os_wd_timer(void *bus, uint wdtick)
 {
 	dhd_pub_t *pub = bus;
 	dhd_info_t *dhd = (dhd_info_t *) pub->info;
+	static uint save_dhd_watchdog_ms = 0;
+  
+  // if bus is down, we do nothing here!
+  if (pub->busstate == DHD_BUS_DOWN) {
+      return;
+  }
 
 	/* Stop timer and restart at new value */
-	if (dhd->wd_timer_valid == TRUE) {
+	if (!wdtick && dhd->wd_timer_valid == TRUE) {
 		del_timer(&dhd->timer);
 		dhd->wd_timer_valid = FALSE;
+		save_dhd_watchdog_ms = wdtick;
+    		return;
 	}
 
-	dhd_watchdog_ms = (uint)wdtick;
-	dhd->timer.expires = jiffies + dhd_watchdog_ms*HZ/1000;
-	add_timer(&dhd->timer);
+	if( wdtick ) {
+	      dhd_watchdog_ms = (uint)wdtick;
+	      //dhd->timer.expires = jiffies + dhd_watchdog_ms*HZ/1000;
+	      //add_timer(&dhd->timer);
+	      mod_timer(&dhd->timer, jiffies + dhd_watchdog_ms * HZ / 1000);
 
 	dhd->wd_timer_valid = TRUE;
+        save_dhd_watchdog_ms = wdtick;
+  }
 }
 
 void *
@@ -2309,7 +2392,7 @@ dhd_os_sdlock(dhd_pub_t * pub)
 	dhd = (dhd_info_t *)(pub->info);
 
 	if (dhd->threads_only)
-		down(&dhd->sdsem);
+		mutex_lock(&dhd->sdsem);
 	else
 	spin_lock_bh(&dhd->sdlock);
 }
@@ -2322,7 +2405,7 @@ dhd_os_sdunlock(dhd_pub_t * pub)
 	dhd = (dhd_info_t *)(pub->info);
 
 	if (dhd->threads_only)
-		up(&dhd->sdsem);
+		mutex_unlock(&dhd->sdsem);
 	else
 	spin_unlock_bh(&dhd->sdlock);
 }

@@ -70,7 +70,7 @@ struct retvaluestruct
 };
 #endif
 
-#define RPC_DATA_IN	0
+#define RPC_DATA_IN	0#define MSM_RPC_ENABLE_RECEIVE (0x10000)
 /*
  * Structures for sending / receiving direct RPC requests
  * XXX: Any cred/verif lengths > 0 not supported
@@ -123,7 +123,7 @@ typedef struct
 	/*
 	 * Following data is dependant on accept_stat
 	 * If ACCEPTSTAT == PROG_MISMATCH then there is a
-	 * 'rpc_reply_progmismatch_data' structure following the header.
+	 * 'rpc_reply_progmismatch_data' s#define MSM_RPC_ENABLE_RECEIVE (0x10000)tructure following the header.
 	 * Otherwise the data is procedure specific
 	 */
 } rpc_accepted_reply_hdr;
@@ -204,6 +204,7 @@ int msm_rpc_write(struct msm_rpc_endpoint *ept,
 		  void *data, int len);
 int msm_rpc_read(struct msm_rpc_endpoint *ept,
 		 void **data, unsigned len, long timeout);
+void msm_rpc_read_wakeup(struct msm_rpc_endpoint *ept);
 void msm_rpc_setup_req(struct rpc_request_hdr *hdr,
 		       uint32_t prog, uint32_t vers, uint32_t proc);
 int msm_rpc_register_server(struct msm_rpc_endpoint *ept,

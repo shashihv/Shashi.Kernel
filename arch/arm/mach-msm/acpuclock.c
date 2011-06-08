@@ -17,6 +17,8 @@
  *
  */
 
+//#define OVERCLOCK_AHB
+
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -44,6 +46,8 @@
 #define A11S_VDD_SVS_PLEVEL_ADDR (MSM_CSR_BASE + 0x124)
 #define PLLn_MODE(n)	(MSM_CLK_CTL_BASE + 0x300 + 28 * (n))
 #define PLLn_L_VAL(n)	(MSM_CLK_CTL_BASE + 0x304 + 28 * (n))
+
+#define OVERCLOCK_AHB
 
 #define dprintk(msg...) \
 	cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, "cpufreq-msm", msg)
@@ -210,15 +214,32 @@ static struct clkctl_acpu_speed pll0_960_pll1_245_pll2_1200[] = {
 	{ 1, 320000, ACPU_PLL_0, 4, 2, 160000, 1, 5, 122880 },
 	{ 0, 400000, ACPU_PLL_2, 2, 2, 133333, 2, 5, 122880 },
 	{ 1, 480000, ACPU_PLL_0, 4, 1, 160000, 2, 6, 122880 },
-	{ 1, 600000, ACPU_PLL_2, 2, 1, 200000, 2, 7, 122880 },
-	{ 1, 729600, ACPU_PLL_0, 4, 0, 182400, 3, 7, 122880 },
-	{ 1, 748800, ACPU_PLL_0, 4, 0, 187200, 3, 7, 122880 },
-	{ 1, 768000, ACPU_PLL_0, 4, 0, 192000, 3, 7, 122880 },
-	{ 1, 787200, ACPU_PLL_0, 4, 0, 196800, 3, 7, 122880 },
-	{ 1, 806400, ACPU_PLL_0, 4, 0, 201600, 3, 7, 122880 },
-	{ 1, 825600, ACPU_PLL_0, 4, 0, 206400, 3, 7, 122880 },
-	{ 1, 844800, ACPU_PLL_0, 4, 0, 211200, 3, 7, 122880 },
-	{ 1, 864000, ACPU_PLL_0, 4, 0, 216000, 3, 7, 122880 },
+	{ 1, 600000, ACPU_PLL_2, 2, 1, 200000, 2, 7, 200000 },
+#ifndef OVERCLOCK_AHB
+/* Conservative AHB overclocking */
+	{ 1, 652800, ACPU_PLL_0, 4, 0, 217600, 2, 7, 200000 },
+	{ 1, 672000, ACPU_PLL_0, 4, 0, 224000, 2, 7, 200000 },
+	{ 1, 691200, ACPU_PLL_0, 4, 0, 230400, 2, 7, 200000 },
+	{ 1, 710400, ACPU_PLL_0, 4, 0, 236800, 2, 7, 200000 },
+	{ 1, 729600, ACPU_PLL_0, 4, 0, 243200, 2, 7, 200000 },
+	{ 1, 748800, ACPU_PLL_0, 4, 0, 249600, 2, 7, 200000 },
+	{ 1, 768000, ACPU_PLL_0, 4, 0, 256000, 2, 7, 200000 },
+	{ 1, 787200, ACPU_PLL_0, 4, 0, 262400, 2, 7, 200000 },
+	{ 1, 806400, ACPU_PLL_0, 4, 0, 268800, 2, 7, 200000 },
+#else
+/* Agressive AHB overclocking */
+//	{ 1, 480000, ACPU_PLL_0, 4, 1, 240000, 1, 6, 200000 },
+//	{ 1, 600000, ACPU_PLL_2, 2, 1, 300000, 1, 7, 200000 },
+	{ 1, 652800, ACPU_PLL_0, 4, 0, 326400, 1, 7, 200000 },
+	{ 1, 672000, ACPU_PLL_0, 4, 0, 336000, 1, 7, 200000 },
+	{ 1, 691200, ACPU_PLL_0, 4, 0, 345600, 1, 7, 200000 },
+	{ 1, 710400, ACPU_PLL_0, 4, 0, 355200, 1, 7, 200000 },
+	{ 1, 729600, ACPU_PLL_0, 4, 0, 364800, 1, 7, 200000 },
+	{ 1, 748800, ACPU_PLL_0, 4, 0, 374400, 1, 7, 200000 },
+	{ 1, 768000, ACPU_PLL_0, 4, 0, 384000, 1, 7, 200000 },
+	{ 1, 787200, ACPU_PLL_0, 4, 0, 393600, 1, 7, 200000 },
+	{ 1, 806400, ACPU_PLL_0, 4, 0, 403200, 1, 7, 200000 },
+#endif
 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}, {0, 0, 0} }
 };
 
@@ -324,17 +345,19 @@ static int pc_pll_request(unsigned id, unsigned on)
 		if (on) {
 			pll_control->pll[PLL_BASE + id].votes |= 2;
 			if (!pll_control->pll[PLL_BASE + id].on) {
-				writel(6, PLLn_MODE(id));
+				writel_relaxed(6, PLLn_MODE(id));
+				dsb();
 				udelay(50);
-				writel(7, PLLn_MODE(id));
+				writel_relaxed(7, PLLn_MODE(id));
 				pll_control->pll[PLL_BASE + id].on = 1;
 			}
 		} else {
 			pll_control->pll[PLL_BASE + id].votes &= ~2;
 			if (pll_control->pll[PLL_BASE + id].on
 			    && !pll_control->pll[PLL_BASE + id].votes) {
-				writel(0, PLLn_MODE(id));
+				writel_relaxed(0, PLLn_MODE(id));
 				pll_control->pll[PLL_BASE + id].on = 0;
+				dsb();
 			}
 		}
 		remote_spin_unlock(&pll_lock);
@@ -384,9 +407,10 @@ static int acpuclk_set_vdd_level(int vdd)
 	dprintk("Switching VDD from %u mV -> %d mV\n",
 	       current_vdd, vdd);
 
-	writel((1 << 7) | (vdd << 3), A11S_VDD_SVS_PLEVEL_ADDR);
+	writel_relaxed((1 << 7) | (vdd << 3), A11S_VDD_SVS_PLEVEL_ADDR);
+	dsb();
 	udelay(drv_state.vdd_switch_time_us);
-	if ((readl(A11S_VDD_SVS_PLEVEL_ADDR) & 0x7) != vdd) {
+	if ((readl_relaxed(A11S_VDD_SVS_PLEVEL_ADDR) & 0x7) != vdd) {
 		pr_err("VDD set failed\n");
 		return -EIO;
 	}
@@ -398,7 +422,6 @@ static int acpuclk_set_vdd_level(int vdd)
 
 /* Set proper dividers for the given clock speed. */
 static void acpuclk_set_div(const struct clkctl_acpu_speed *hunt_s) {
-	//OC HACK uint32_t reg_clkctl, reg_clksel, clk_div, src_sel;
 	uint32_t reg_clkctl, reg_clksel, clk_div, src_sel, a11_div;
 
 	reg_clksel = readl(A11S_CLK_SEL_ADDR);
@@ -407,18 +430,25 @@ static void acpuclk_set_div(const struct clkctl_acpu_speed *hunt_s) {
 	clk_div = (reg_clksel >> 1) & 0x03;
 	/* CLK_SEL_SRC1NO */
 	src_sel = reg_clksel & 1;
-
-	//OC HACK
-	a11_div = hunt_s->a11clk_src_div;
-
-	if(hunt_s->a11clk_khz>600000) {
-			a11_div=0;
-			writel(hunt_s->a11clk_khz/19200, PLLn_L_VAL(0));
-			cpu_relax();
-			udelay(50);
-		}
+a11_div = hunt_s->a11clk_src_div;
 
 
+#ifdef CONFIG_JESUS_PHONE
+   if (hunt_s->a11clk_khz > 600000) {
+    a11_div=0;
+    writel(hunt_s->a11clk_khz/19200, PLLn_L_VAL(0));
+    cpu_relax();
+    udelay(50);
+  } else if (hunt_s->pll == ACPU_PLL_0) {
+    if ((readl(PLLn_L_VAL(0)) & 0x3f) != PLL_960_MHZ) {
+      /* Restore PLL0 to standard config */
+      writel(PLL_960_MHZ, PLLn_L_VAL(0));
+    }
+    cpu_relax();
+    udelay(50);
+  }
+#endif
+ 
 	/*
 	 * If the new clock divider is higher than the previous, then
 	 * program the divider before switching the clock
@@ -429,14 +459,26 @@ static void acpuclk_set_div(const struct clkctl_acpu_speed *hunt_s) {
 		writel(reg_clksel, A11S_CLK_SEL_ADDR);
 	}
 
+	// Perform overclocking if requested
+	if(hunt_s->pll==0 && hunt_s->a11clk_khz>600000) {
+		// Change the speed of PLL0
+		writel(hunt_s->a11clk_khz/19200, PLLn_L_VAL(0));
+		udelay(50);
+	}
+
+#ifdef OVERCLOCK_AHB
+	// Pump the PLL2 up another 19200kHz (overclock stock 600MHz from 595.2MHz to 604.8MHz)
+	if(hunt_s->pll==2 && hunt_s->a11clk_khz==600000) {
+		writel(63, PLLn_L_VAL(2));
+		udelay(50);
+	}
+#endif
+
 	/* Program clock source and divider */
 	reg_clkctl = readl(A11S_CLK_CNTL_ADDR);
 	reg_clkctl &= ~(0xFF << (8 * src_sel));
-	reg_clkctl |=a11_div;
 	reg_clkctl |= hunt_s->a11clk_src_sel << (4 + 8 * src_sel);
-	
-	reg_clkctl |=a11_div;
-	reg_clkctl |= hunt_s->a11clk_src_div << (0 + 8 * src_sel);
+	reg_clkctl |= a11_div << (0 + 8 * src_sel);
 	writel(reg_clkctl, A11S_CLK_CNTL_ADDR);
 
 	/* Program clock source selection */
@@ -447,10 +489,9 @@ static void acpuclk_set_div(const struct clkctl_acpu_speed *hunt_s) {
 	if(hunt_s->pll==0 && hunt_s->a11clk_khz<=600000) {
 		// Restore the speed of PLL0
 		writel(50, PLLn_L_VAL(0));
-		cpu_relax();
 		udelay(50);
 	}
-	
+
 	/*
 	 * If the new clock divider is lower than the previous, then
 	 * program the divider after switching the clock
@@ -531,7 +572,8 @@ int acpuclk_set_rate(int cpu, unsigned long rate, enum setrate_reason reason)
 	/* Set wait states for CPU inbetween frequency changes */
 	reg_clkctl = readl(A11S_CLK_CNTL_ADDR);
 	reg_clkctl |= (100 << 16); /* set WT_ST_CNT */
-	writel(reg_clkctl, A11S_CLK_CNTL_ADDR);
+	writel_relaxed(reg_clkctl, A11S_CLK_CNTL_ADDR);
+	dsb();
 
 	dprintk("Switching from ACPU rate %u KHz -> %u KHz\n",
 		       strt_s->a11clk_khz, tgt_s->a11clk_khz);
@@ -593,6 +635,7 @@ int acpuclk_set_rate(int cpu, unsigned long rate, enum setrate_reason reason)
 		drv_state.current_speed = cur_s;
 		/* Re-adjust lpj for the new clock speed. */
 		loops_per_jiffy = cur_s->lpj;
+		dsb();
 		udelay(drv_state.acpu_switch_time_us);
 	}
 

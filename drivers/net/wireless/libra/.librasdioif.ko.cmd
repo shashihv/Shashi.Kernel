@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/libra/librasdioif.ko := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o drivers/net/wireless/libra/librasdioif.ko drivers/net/wireless/libra/librasdioif.o drivers/net/wireless/libra/librasdioif.mod.o

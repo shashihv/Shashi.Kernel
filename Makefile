@@ -182,7 +182,7 @@ SUBARCH := arm
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= $(SUBARCH)
-CROSS_COMPILE	?= arm-2011.03/bin/arm-none-eabi-
+CROSS_COMPILE	?= /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -222,8 +222,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer
+HOSTCXXFLAGS = -O3
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -326,11 +326,11 @@ LGE_CF		= -D__CHECK_ENDIAN__ -Wcast-truncate -Wno-paren-string -Wtypesign
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF) $(LGE_CF)
 MODFLAGS	= -DMODULE
-CFLAGS_MODULE   =
-AFLAGS_MODULE   =
+CFLAGS_MODULE   = $(MODFLAGS) -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
+AFLAGS_MODULE   = $(MODFLAGS) -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL	=
-AFLAGS_KERNEL	=
+CFLAGS_KERNEL	= -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
+AFLAGS_KERNEL	= -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -347,7 +347,8 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks
+		   -fno-delete-null-pointer-checks \
+		   	      -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
@@ -525,7 +526,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else
-KBUILD_CFLAGS	+= -O2
+KBUILD_CFLAGS	+= -O3
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile

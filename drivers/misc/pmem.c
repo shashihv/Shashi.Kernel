@@ -3161,4 +3161,3 @@ static void __exit pmem_exit(void)
 
 module_init(pmem_init);
 module_exit(pmem_exit);
-

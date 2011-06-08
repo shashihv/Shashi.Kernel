@@ -30,16 +30,17 @@
 /* LGE_CHANGE_E [bluerti@lge.com] 2009-07-06 <For Error Handler > */
 
 #if defined(CONFIG_ARCH_MSM7X30)
-#define MSM_TRIG_A2M_PC_INT (writel(1 << 6, MSM_GCC_BASE + 0x8))
+#define MSM_TRIG_A2M_PC_INT (writel_relaxed(1 << 6, MSM_GCC_BASE + 0x8))
 #elif defined(CONFIG_ARCH_MSM8X60)
-#define MSM_TRIG_A2M_PC_INT (writel(1 << 5, MSM_GCC_BASE + 0x8))
+#define MSM_TRIG_A2M_PC_INT (writel_relaxed(1 << 5, MSM_GCC_BASE + 0x8))
 #else
-#define MSM_TRIG_A2M_PC_INT (writel(1, MSM_CSR_BASE + 0x400 + (6) * 4))
+#define MSM_TRIG_A2M_PC_INT (writel_relaxed(1, MSM_CSR_BASE + 0x400 + (6) * 4))
 #endif
 
 static inline void notify_other_proc_comm(void)
 {
 	MSM_TRIG_A2M_PC_INT;
+	wmb();
 }
 
 #define APP_COMMAND 0x00
@@ -65,7 +66,8 @@ static DEFINE_SPINLOCK(proc_comm_lock);
 static int proc_comm_wait_for(unsigned addr, unsigned value)
 {
 	while (1) {
-		if (readl(addr) == value)
+		mb();
+		if (readl_relaxed(addr) == value)
 			return 0;
 
 		if (smsm_check_for_modem_crash())
@@ -86,9 +88,9 @@ again:
 	if (proc_comm_wait_for(base + MDM_STATUS, PCOM_READY))
 		goto again;
 
-	writel(PCOM_RESET_MODEM, base + APP_COMMAND);
-	writel(0, base + APP_DATA1);
-	writel(0, base + APP_DATA2);
+	writel_relaxed(PCOM_RESET_MODEM, base + APP_COMMAND);
+	writel_relaxed(0, base + APP_DATA1);
+	writel_relaxed(0, base + APP_DATA2);
 
 	spin_unlock_irqrestore(&proc_comm_lock, flags);
 
@@ -111,10 +113,11 @@ int msm_proc_comm(unsigned cmd, unsigned *data1, unsigned *data2)
 			goto crash;
 	}
 	//LGE_CHANGE_E [blue.park@lge.com] 2009-04-01 <For Error Handler> 
-	writel(cmd, base + APP_COMMAND);
-	writel(data1 ? *data1 : 0, base + APP_DATA1);
-	writel(data2 ? *data2 : 0, base + APP_DATA2);
+	writel_relaxed(cmd, base + APP_COMMAND);
+	writel_relaxed(data1 ? *data1 : 0, base + APP_DATA1);
+	writel_relaxed(data2 ? *data2 : 0, base + APP_DATA2);
 
+	wmb();
 	notify_other_proc_comm();
 	
 	//LGE_CHANGE_S [blue.park@lge.com] 2009-04-01 <For Error Handler> 
@@ -123,17 +126,17 @@ int msm_proc_comm(unsigned cmd, unsigned *data1, unsigned *data2)
 
 	}
 	//LGE_CHANGE_E [blue.park@lge.com] 2009-04-01 <For Error Handler> 
-	if (readl(base + APP_STATUS) == PCOM_CMD_SUCCESS) {
+	if (readl_relaxed(base + APP_STATUS) == PCOM_CMD_SUCCESS) {
 		if (data1)
-			*data1 = readl(base + APP_DATA1);
+			*data1 = readl_relaxed(base + APP_DATA1);
 		if (data2)
-			*data2 = readl(base + APP_DATA2);
+			*data2 = readl_relaxed(base + APP_DATA2);
 		ret = 0;
 	} else {
 		ret = -EIO;
 	}
 
-	writel(PCOM_CMD_IDLE, base + APP_COMMAND);
+	writel_relaxed(PCOM_CMD_IDLE, base + APP_COMMAND);
 
 	spin_unlock_irqrestore(&proc_comm_lock, flags);
 	return ret;
