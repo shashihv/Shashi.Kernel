@@ -1,3 +1,6 @@
+#ifdef CONFIG_SCHED_BFS
+#include "sched_bfs.c"
+#else
 /*
  *  kernel/sched.c
  *
@@ -496,7 +499,6 @@ struct rq {
 	#define CPU_LOAD_IDX_MAX 5
 	unsigned long cpu_load[CPU_LOAD_IDX_MAX];
 #ifdef CONFIG_NO_HZ
-	unsigned long last_tick_seen;
 	u64 nohz_stamp;
 	unsigned char in_nohz_recently;
 #endif
@@ -1181,6 +1183,16 @@ static void resched_task(struct task_struct *p)
 	smp_mb();
 	if (!tsk_is_polling(p))
 		smp_send_reschedule(cpu);
+}
+
+int nohz_ratelimit(int cpu)
+{
+  struct rq *rq = cpu_rq(cpu);
+  u64 diff = rq->clock - rq->nohz_stamp;
+
+  rq->nohz_stamp = rq->clock;
+
+  return diff < (NSEC_PER_SEC / HZ) >> 1;
 }
 
 static void resched_cpu(int cpu)
@@ -11230,3 +11242,4 @@ EXPORT_SYMBOL_GPL(synchronize_sched_expedited);
 
 EXPORT_SYMBOL_GPL(nr_running);
 #endif /* #else #ifndef CONFIG_SMP */
+#endif /* CONFIG_SCHED_BFS */

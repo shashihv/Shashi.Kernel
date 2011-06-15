@@ -1,4 +1,4 @@
-cmd_scripts/basic/fixdep := gcc -Wp,-MD,scripts/basic/.fixdep.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer     -o scripts/basic/fixdep scripts/basic/fixdep.c  
+cmd_scripts/basic/fixdep := gcc -Wp,-MD,scripts/basic/.fixdep.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer     -o scripts/basic/fixdep scripts/basic/fixdep.c  
 
 deps_scripts/basic/fixdep := \
   scripts/basic/fixdep.c \
@@ -17,7 +17,7 @@ deps_scripts/basic/fixdep := \
   /usr/include/bits/types.h \
   /usr/include/bits/typesizes.h \
   /usr/include/time.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stddef.h \
   /usr/include/endian.h \
   /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h \
@@ -54,13 +54,13 @@ deps_scripts/basic/fixdep := \
   /usr/include/libio.h \
   /usr/include/_G_config.h \
   /usr/include/wchar.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdarg.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdarg.h \
   /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h \
   /usr/include/bits/stdio.h \
   /usr/include/bits/stdio2.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include-fixed/limits.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include-fixed/syslimits.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include-fixed/limits.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include-fixed/syslimits.h \
   /usr/include/limits.h \
   /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h \
@@ -69,6 +69,7 @@ deps_scripts/basic/fixdep := \
   /usr/include/ctype.h \
   /usr/include/arpa/inet.h \
   /usr/include/netinet/in.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdint.h \
   /usr/include/stdint.h \
   /usr/include/bits/wchar.h \
   /usr/include/sys/socket.h \
@@ -76,9 +77,9 @@ deps_scripts/basic/fixdep := \
   /usr/include/bits/uio.h \
   /usr/include/bits/socket.h \
   /usr/include/bits/sockaddr.h \
-  /usr/include/asm/socket.h \
+  /usr/include/i386-linux-gnu/asm/socket.h \
   /usr/include/asm-generic/socket.h \
-  /usr/include/asm/sockios.h \
+  /usr/include/i386-linux-gnu/asm/sockios.h \
   /usr/include/asm-generic/sockios.h \
   /usr/include/bits/socket2.h \
   /usr/include/bits/in.h \

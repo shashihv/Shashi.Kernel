@@ -1,1 +1,1 @@
-cmd_drivers/input/keyboard/built-in.o :=  /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL    -r -o drivers/input/keyboard/built-in.o drivers/input/keyboard/atcmd_virtual_kbd.o 
+cmd_drivers/input/keyboard/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o drivers/input/keyboard/built-in.o drivers/input/keyboard/atcmd_virtual_kbd.o 

@@ -52,7 +52,11 @@ int migrate_prep(void)
 
 	return 0;
 }
-
+int migrate_prep_local(void)
+{
+  lru_add_drain();
+  return 0;
+}
 /*
  * Add isolated pages on the list back to the LRU under page lock
  * to avoid leaking evictable pages back onto unevictable list.
@@ -737,7 +741,7 @@ move_newpage:
  * Return: Number of pages not migrated or error code.
  */
 int migrate_pages(struct list_head *from,
-		new_page_t get_new_page, unsigned long private)
+		new_page_t get_new_page, unsigned long private, int unused)
 {
 	int retry = 1;
 	int nr_failed = 0;

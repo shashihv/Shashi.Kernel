@@ -1,1 +1,1 @@
-cmd_sound/drivers/built-in.o :=  /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL    -r -o sound/drivers/built-in.o sound/drivers/opl3/built-in.o sound/drivers/opl4/built-in.o sound/drivers/mpu401/built-in.o sound/drivers/vx/built-in.o sound/drivers/pcsp/built-in.o 
+cmd_sound/drivers/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o sound/drivers/built-in.o sound/drivers/opl3/built-in.o sound/drivers/opl4/built-in.o sound/drivers/mpu401/built-in.o sound/drivers/vx/built-in.o sound/drivers/pcsp/built-in.o 

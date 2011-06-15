@@ -1173,6 +1173,41 @@ void split_page(struct page *page, unsigned int order)
 		set_page_refcounted(page + i);
 }
 
+int split_free_page(struct page *page)
+{
+  unsigned int order;
+  unsigned long watermark;
+  struct zone *zone;
+  
+  BUG_ON(!PageBuddy(page));
+  
+  zone = page_zone(page);
+  order = page_order(page);
+  
+  /* Obey watermarks as if the page was being allocated */
+  watermark = low_wmark_pages(zone) + (1 << order);
+  if (!zone_watermark_ok(zone, 0, watermark, 0, 0))
+    return 0;
+    
+  /* Remove page from free list */
+  list_del(&page->lru);
+  zone->free_area[order].nr_free--;
+  rmv_page_order(page);
+  __mod_zone_page_state(zone, NR_FREE_PAGES, -(1UL << order));
+  
+  /* Split into individual pages */
+  set_page_refcounted(page);
+  split_page(page, order);
+  
+  if (order >= pageblock_order - 1) {
+    struct page *endpage = page + (1 << order) - 1;
+    for (; page < endpage; page += pageblock_nr_pages)
+    set_pageblock_migratetype(page, MIGRATE_MOVABLE);
+  }
+  
+  return 1 << order;
+}
+
 /*
  * Really, prep_compound_page() should be called from __rmqueue_bulk().  But
  * we cheat by calling it from here, in the order > 0 path.  Saves a branch
@@ -1842,14 +1877,15 @@ restart:
 	 */
 	alloc_flags = gfp_to_alloc_flags(gfp_mask);
 
+rebalance:
 	/* This is the last chance, in general, before the goto nopage. */
 	page = get_page_from_freelist(gfp_mask, nodemask, order, zonelist,
 			high_zoneidx, alloc_flags & ~ALLOC_NO_WATERMARKS,
 			preferred_zone, migratetype);
+
 	if (page)
 		goto got_pg;
 
-rebalance:
 	/* Allocate without watermarks if the context allows */
 	if (alloc_flags & ALLOC_NO_WATERMARKS) {
 		page = __alloc_pages_high_priority(gfp_mask, order,

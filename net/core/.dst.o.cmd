@@ -1,4 +1,4 @@
-cmd_net/core/dst.o := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-gcc -Wp,-MD,net/core/.dst.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -O3 -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -Wframe-larger-than=2112 -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-dwarf2-cfi-asm -fconserve-stack  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(dst)"  -D"KBUILD_MODNAME=KBUILD_STR(dst)"  -c -o net/core/dst.o net/core/dst.c
+cmd_net/core/dst.o := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-gcc -Wp,-MD,net/core/.dst.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -Os -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(dst)"  -D"KBUILD_MODNAME=KBUILD_STR(dst)"  -c -o net/core/dst.o net/core/dst.c
 
 deps_net/core/dst.o := \
   net/core/dst.c \
@@ -73,7 +73,7 @@ deps_net/core/dst.o := \
     $(wildcard include/config/tracing.h) \
     $(wildcard include/config/numa.h) \
     $(wildcard include/config/ftrace/mcount/record.h) \
-  /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include/stdarg.h \
+  /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h \
   include/linux/log2.h \
     $(wildcard include/config/arch/has/ilog2/u32.h) \
     $(wildcard include/config/arch/has/ilog2/u64.h) \
@@ -2863,6 +2863,7 @@ deps_net/core/dst.o := \
     $(wildcard include/config/memory/failure.h) \
     $(wildcard include/config/s390.h) \
   include/linux/vmstat.h \
+    $(wildcard include/config/compaction.h) \
     $(wildcard include/config/vm/event/counters.h) \
   include/linux/percpu.h \
     $(wildcard include/config/have/legacy/per/cpu/area.h) \
@@ -2911,10 +2912,14 @@ deps_net/core/dst.o := \
     $(wildcard include/config/ppc64.h) \
   include/linux/tracepoint.h \
   include/linux/rcupdate.h \
+    $(wildcard include/config/rcu/torture/test.h) \
     $(wildcard include/config/tree/rcu.h) \
     $(wildcard include/config/tree/preempt/rcu.h) \
     $(wildcard include/config/tiny/rcu.h) \
-  include/linux/rcutree.h \
+    $(wildcard include/config/tiny/preempt/rcu.h) \
+    $(wildcard include/config/prove/rcu.h) \
+    $(wildcard include/config/debug/objects/rcu/head.h) \
+  include/linux/rcutiny.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/module.h \
@@ -3044,6 +3049,45 @@ deps_net/core/dst.o := \
     $(wildcard include/config/netfilter/debug.h) \
     $(wildcard include/config/nf/nat/needed.h) \
   include/linux/in.h \
+  include/net/flow.h \
+  include/linux/proc_fs.h \
+    $(wildcard include/config/proc/devicetree.h) \
+    $(wildcard include/config/proc/kcore.h) \
+  include/linux/fs.h \
+    $(wildcard include/config/dnotify.h) \
+    $(wildcard include/config/quota.h) \
+    $(wildcard include/config/fsnotify.h) \
+    $(wildcard include/config/inotify.h) \
+    $(wildcard include/config/security.h) \
+    $(wildcard include/config/fs/posix/acl.h) \
+    $(wildcard include/config/epoll.h) \
+    $(wildcard include/config/debug/writecount.h) \
+    $(wildcard include/config/file/locking.h) \
+    $(wildcard include/config/auditsyscall.h) \
+    $(wildcard include/config/block.h) \
+    $(wildcard include/config/fs/xip.h) \
+    $(wildcard include/config/migration.h) \
+  include/linux/limits.h \
+  include/linux/kdev_t.h \
+  include/linux/dcache.h \
+  include/linux/path.h \
+  include/linux/radix-tree.h \
+  include/linux/pid.h \
+  include/linux/capability.h \
+    $(wildcard include/config/security/file/capabilities.h) \
+  include/linux/fiemap.h \
+  include/linux/quota.h \
+  include/linux/dqblk_xfs.h \
+  include/linux/dqblk_v1.h \
+  include/linux/dqblk_v2.h \
+  include/linux/dqblk_qtree.h \
+  include/linux/nfs_fs_i.h \
+  include/linux/nfs.h \
+  include/linux/sunrpc/msg_prot.h \
+  include/linux/inet.h \
+  include/linux/magic.h \
+  include/net/netns/conntrack.h \
+  include/linux/list_nulls.h \
   include/net/netns/xfrm.h \
   include/linux/xfrm.h \
   include/linux/seq_file_net.h \
@@ -3059,6 +3103,7 @@ deps_net/core/dst.o := \
   include/linux/smp_lock.h \
     $(wildcard include/config/lock/kernel.h) \
   include/linux/sched.h \
+    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/detect/softlockup.h) \
     $(wildcard include/config/detect/hung/task.h) \
@@ -3067,7 +3112,6 @@ deps_net/core/dst.o := \
     $(wildcard include/config/taskstats.h) \
     $(wildcard include/config/audit.h) \
     $(wildcard include/config/inotify/user.h) \
-    $(wildcard include/config/epoll.h) \
     $(wildcard include/config/posix/mqueue.h) \
     $(wildcard include/config/keys.h) \
     $(wildcard include/config/perf/events.h) \
@@ -3076,9 +3120,9 @@ deps_net/core/dst.o := \
     $(wildcard include/config/fair/group/sched.h) \
     $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
+    $(wildcard include/config/preempt/rcu.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/sysvipc.h) \
-    $(wildcard include/config/auditsyscall.h) \
     $(wildcard include/config/rt/mutexes.h) \
     $(wildcard include/config/task/xacct.h) \
     $(wildcard include/config/cpusets.h) \
@@ -3090,8 +3134,6 @@ deps_net/core/dst.o := \
     $(wildcard include/config/have/unstable/sched/clock.h) \
     $(wildcard include/config/debug/stack/usage.h) \
     $(wildcard include/config/cgroup/sched.h) \
-  include/linux/capability.h \
-    $(wildcard include/config/security/file/capabilities.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/cputime.h \
   include/asm-generic/cputime.h \
   include/linux/sem.h \
@@ -3104,8 +3146,6 @@ deps_net/core/dst.o := \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/sigcontext.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/siginfo.h \
   include/asm-generic/siginfo.h \
-  include/linux/path.h \
-  include/linux/pid.h \
   include/linux/proportions.h \
   include/linux/percpu_counter.h \
   include/linux/seccomp.h \
@@ -3122,7 +3162,6 @@ deps_net/core/dst.o := \
   include/linux/latencytop.h \
   include/linux/cred.h \
     $(wildcard include/config/debug/credentials.h) \
-    $(wildcard include/config/security.h) \
   include/linux/key.h \
   include/linux/selinux.h \
     $(wildcard include/config/security/selinux.h) \

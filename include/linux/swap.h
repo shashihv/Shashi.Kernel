@@ -150,6 +150,7 @@ enum {
 };
 
 #define SWAP_CLUSTER_MAX 32
+#define COMPACT_CLUSTER_MAX SWAP_CLUSTER_MAX
 
 #define SWAP_MAP_MAX	0x7ffe
 #define SWAP_MAP_BAD	0x7fff
@@ -228,6 +229,10 @@ static inline void lru_cache_add_file(struct page *page)
 {
 	____lru_cache_add(page, LRU_INACTIVE_FILE, 0);
 }
+
+#define ISOLATE_INACTIVE 0
+#define ISOLATE_ACTIVE 1
+#define ISOLATE_BOTH 2
 
 /* linux/mm/vmscan.c */
 extern unsigned long try_to_free_pages(struct zonelist *zonelist, int order,

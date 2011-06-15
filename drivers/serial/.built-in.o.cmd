@@ -1,1 +1,1 @@
-cmd_drivers/serial/built-in.o :=  /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL    -r -o drivers/serial/built-in.o drivers/serial/serial_core.o drivers/serial/msm_serial.o drivers/serial/msm_serial_hs.o 
+cmd_drivers/serial/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o drivers/serial/built-in.o drivers/serial/serial_core.o drivers/serial/msm_serial.o drivers/serial/msm_serial_hs.o 

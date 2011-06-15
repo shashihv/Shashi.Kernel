@@ -1,1 +1,1 @@
-cmd_crypto/ansi_cprng.ko := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o crypto/ansi_cprng.ko crypto/ansi_cprng.o crypto/ansi_cprng.mod.o
+cmd_crypto/ansi_cprng.ko := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o crypto/ansi_cprng.ko crypto/ansi_cprng.o crypto/ansi_cprng.mod.o

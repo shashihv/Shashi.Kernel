@@ -1,4 +1,4 @@
-cmd_scripts/kconfig/conf.o := gcc -Wp,-MD,scripts/kconfig/.conf.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer   -DCURSES_LOC="<ncurses.h>" -DLOCALE   -c -o scripts/kconfig/conf.o scripts/kconfig/conf.c
+cmd_scripts/kconfig/conf.o := gcc -Wp,-MD,scripts/kconfig/.conf.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer   -DCURSES_LOC="<ncurses.h>" -DLOCALE   -c -o scripts/kconfig/conf.o scripts/kconfig/conf.c
 
 deps_scripts/kconfig/conf.o := \
   scripts/kconfig/conf.c \
@@ -11,7 +11,7 @@ deps_scripts/kconfig/conf.o := \
   /usr/include/bits/wordsize.h \
   /usr/include/gnu/stubs.h \
   /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stddef.h \
   /usr/include/bits/locale.h \
   /usr/include/xlocale.h \
   /usr/include/ctype.h \
@@ -24,7 +24,7 @@ deps_scripts/kconfig/conf.o := \
   /usr/include/libio.h \
   /usr/include/_G_config.h \
   /usr/include/wchar.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdarg.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdarg.h \
   /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h \
   /usr/include/bits/stdio.h \
@@ -58,7 +58,7 @@ deps_scripts/kconfig/conf.o := \
   scripts/kconfig/lkc.h \
     $(wildcard include/config/list.h) \
   scripts/kconfig/expr.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdbool.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdbool.h \
   /usr/include/libintl.h \
   scripts/kconfig/lkc_proto.h \
 

@@ -1,9 +1,9 @@
-cmd_scripts/kconfig/lxdialog/util.o := gcc -Wp,-MD,scripts/kconfig/lxdialog/.util.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer   -DCURSES_LOC="<ncurses.h>" -DLOCALE   -c -o scripts/kconfig/lxdialog/util.o scripts/kconfig/lxdialog/util.c
+cmd_scripts/kconfig/lxdialog/util.o := gcc -Wp,-MD,scripts/kconfig/lxdialog/.util.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer   -DCURSES_LOC="<ncurses.h>" -DLOCALE   -c -o scripts/kconfig/lxdialog/util.o scripts/kconfig/lxdialog/util.c
 
 deps_scripts/kconfig/lxdialog/util.o := \
   scripts/kconfig/lxdialog/util.c \
     $(wildcard include/config/color.h) \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdarg.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdarg.h \
   scripts/kconfig/lxdialog/dialog.h \
   /usr/include/sys/types.h \
   /usr/include/features.h \
@@ -15,7 +15,7 @@ deps_scripts/kconfig/lxdialog/util.o := \
   /usr/include/bits/types.h \
   /usr/include/bits/typesizes.h \
   /usr/include/time.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stddef.h \
   /usr/include/endian.h \
   /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h \
@@ -46,7 +46,7 @@ deps_scripts/kconfig/lxdialog/util.o := \
   /usr/include/bits/string.h \
   /usr/include/bits/string2.h \
   /usr/include/bits/string3.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdbool.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdbool.h \
   /usr/include/libintl.h \
   /usr/include/locale.h \
   /usr/include/bits/locale.h \

@@ -1,4 +1,4 @@
-cmd_usr/gen_init_cpio := gcc -Wp,-MD,usr/.gen_init_cpio.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer     -o usr/gen_init_cpio usr/gen_init_cpio.c  
+cmd_usr/gen_init_cpio := gcc -Wp,-MD,usr/.gen_init_cpio.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer     -o usr/gen_init_cpio usr/gen_init_cpio.c  
 
 deps_usr/gen_init_cpio := \
   usr/gen_init_cpio.c \
@@ -9,13 +9,13 @@ deps_usr/gen_init_cpio := \
   /usr/include/bits/wordsize.h \
   /usr/include/gnu/stubs.h \
   /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stddef.h \
   /usr/include/bits/types.h \
   /usr/include/bits/typesizes.h \
   /usr/include/libio.h \
   /usr/include/_G_config.h \
   /usr/include/wchar.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdarg.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdarg.h \
   /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h \
   /usr/include/bits/stdio.h \
@@ -55,12 +55,12 @@ deps_usr/gen_init_cpio := \
   /usr/include/errno.h \
   /usr/include/bits/errno.h \
   /usr/include/linux/errno.h \
-  /usr/include/asm/errno.h \
+  /usr/include/i386-linux-gnu/asm/errno.h \
   /usr/include/asm-generic/errno.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/ctype.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include-fixed/limits.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include-fixed/syslimits.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include-fixed/limits.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include-fixed/syslimits.h \
   /usr/include/limits.h \
   /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h \

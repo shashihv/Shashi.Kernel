@@ -1,19 +1,17 @@
-cmd_kernel/rcutiny.o := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-gcc -Wp,-MD,kernel/.rcutiny.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -O3 -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -Wframe-larger-than=2112 -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-dwarf2-cfi-asm -fconserve-stack  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(rcutiny)"  -D"KBUILD_MODNAME=KBUILD_STR(rcutiny)"  -c -o kernel/rcutiny.o kernel/rcutiny.c
+cmd_kernel/rcutiny.o := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-gcc -Wp,-MD,kernel/.rcutiny.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -Os -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(rcutiny)"  -D"KBUILD_MODNAME=KBUILD_STR(rcutiny)"  -c -o kernel/rcutiny.o kernel/rcutiny.c
 
 deps_kernel/rcutiny.o := \
   kernel/rcutiny.c \
+    $(wildcard include/config/debug/lock/alloc.h) \
     $(wildcard include/config/no/hz.h) \
-  include/linux/types.h \
-    $(wildcard include/config/uid16.h) \
-    $(wildcard include/config/lbdaf.h) \
-    $(wildcard include/config/phys/addr/t/64bit.h) \
-    $(wildcard include/config/64bit.h) \
-  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/types.h \
-  include/asm-generic/int-ll64.h \
-  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/bitsperlong.h \
-  include/asm-generic/bitsperlong.h \
-  include/linux/posix_types.h \
-  include/linux/stddef.h \
+  include/linux/moduleparam.h \
+    $(wildcard include/config/alpha.h) \
+    $(wildcard include/config/ia64.h) \
+    $(wildcard include/config/ppc64.h) \
+    $(wildcard include/config/sysfs.h) \
+    $(wildcard include/config/modules.h) \
+  include/linux/init.h \
+    $(wildcard include/config/hotplug.h) \
   include/linux/compiler.h \
     $(wildcard include/config/trace/branch/profiling.h) \
     $(wildcard include/config/profile/all/branches.h) \
@@ -23,8 +21,9 @@ deps_kernel/rcutiny.o := \
     $(wildcard include/config/arch/supports/optimized/inlining.h) \
     $(wildcard include/config/optimize/inlining.h) \
   include/linux/compiler-gcc4.h \
-  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/posix_types.h \
+  include/linux/stringify.h \
   include/linux/kernel.h \
+    $(wildcard include/config/lbdaf.h) \
     $(wildcard include/config/preempt/voluntary.h) \
     $(wildcard include/config/debug/spinlock/sleep.h) \
     $(wildcard include/config/prove/locking.h) \
@@ -34,9 +33,20 @@ deps_kernel/rcutiny.o := \
     $(wildcard include/config/tracing.h) \
     $(wildcard include/config/numa.h) \
     $(wildcard include/config/ftrace/mcount/record.h) \
-  /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include/stdarg.h \
+  /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h \
   include/linux/linkage.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/linkage.h \
+  include/linux/stddef.h \
+  include/linux/types.h \
+    $(wildcard include/config/uid16.h) \
+    $(wildcard include/config/phys/addr/t/64bit.h) \
+    $(wildcard include/config/64bit.h) \
+  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/types.h \
+  include/asm-generic/int-ll64.h \
+  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/bitsperlong.h \
+  include/asm-generic/bitsperlong.h \
+  include/linux/posix_types.h \
+  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/posix_types.h \
   include/linux/bitops.h \
     $(wildcard include/config/generic/find/first/bit.h) \
     $(wildcard include/config/generic/find/last/bit.h) \
@@ -88,17 +98,16 @@ deps_kernel/rcutiny.o := \
     $(wildcard include/config/generic/bug.h) \
     $(wildcard include/config/generic/bug/relative/pointers.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/div64.h \
-  include/linux/init.h \
-    $(wildcard include/config/modules.h) \
-    $(wildcard include/config/hotplug.h) \
-  include/linux/rcupdate.h \
-    $(wildcard include/config/tree/preempt/rcu.h) \
-    $(wildcard include/config/tiny/rcu.h) \
-    $(wildcard include/config/tree/rcu.h) \
-    $(wildcard include/config/debug/lock/alloc.h) \
-  include/linux/rcu_types.h \
-  include/linux/cache.h \
-    $(wildcard include/config/arch/has/cache/line/size.h) \
+  include/linux/completion.h \
+    $(wildcard include/config/lockdep.h) \
+  include/linux/wait.h \
+  include/linux/list.h \
+    $(wildcard include/config/debug/list.h) \
+  include/linux/poison.h \
+    $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/prefetch.h \
+  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/processor.h \
+    $(wildcard include/config/mmu.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/cache.h \
     $(wildcard include/config/arm/l1/cache/shift.h) \
     $(wildcard include/config/aeabi.h) \
@@ -119,55 +128,45 @@ deps_kernel/rcutiny.o := \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/domain.h \
     $(wildcard include/config/verify/permission/fault.h) \
     $(wildcard include/config/io/36.h) \
-    $(wildcard include/config/mmu.h) \
-  include/linux/list.h \
-    $(wildcard include/config/debug/list.h) \
-  include/linux/poison.h \
-    $(wildcard include/config/illegal/pointer/value.h) \
-  include/linux/prefetch.h \
-  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/processor.h \
-  include/linux/stringify.h \
   include/linux/bottom_half.h \
   include/linux/spinlock_types.h \
   include/linux/spinlock_types_up.h \
   include/linux/lockdep.h \
-    $(wildcard include/config/lockdep.h) \
     $(wildcard include/config/lock/stat.h) \
     $(wildcard include/config/generic/hardirqs.h) \
   include/linux/spinlock_up.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/atomic.h \
   include/asm-generic/atomic-long.h \
   include/linux/spinlock_api_up.h \
-  include/linux/threads.h \
-    $(wildcard include/config/nr/cpus.h) \
-    $(wildcard include/config/base/small.h) \
-  include/linux/cpumask.h \
-    $(wildcard include/config/cpumask/offstack.h) \
-    $(wildcard include/config/hotplug/cpu.h) \
-    $(wildcard include/config/debug/per/cpu/maps.h) \
-    $(wildcard include/config/disable/obsolete/cpumask/functions.h) \
-  include/linux/bitmap.h \
-  include/linux/string.h \
-    $(wildcard include/config/binary/printf.h) \
-  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/string.h \
-  include/linux/seqlock.h \
-  include/linux/completion.h \
-  include/linux/wait.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/current.h \
-  include/linux/rcutiny.h \
   include/linux/interrupt.h \
     $(wildcard include/config/pm/sleep.h) \
     $(wildcard include/config/generic/irq/probe.h) \
     $(wildcard include/config/proc/fs.h) \
     $(wildcard include/config/debug/shirq.h) \
+  include/linux/cpumask.h \
+    $(wildcard include/config/cpumask/offstack.h) \
+    $(wildcard include/config/hotplug/cpu.h) \
+    $(wildcard include/config/debug/per/cpu/maps.h) \
+    $(wildcard include/config/disable/obsolete/cpumask/functions.h) \
+  include/linux/threads.h \
+    $(wildcard include/config/nr/cpus.h) \
+    $(wildcard include/config/base/small.h) \
+  include/linux/bitmap.h \
+  include/linux/string.h \
+    $(wildcard include/config/binary/printf.h) \
+  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/string.h \
   include/linux/irqreturn.h \
   include/linux/irqnr.h \
   include/linux/hardirq.h \
     $(wildcard include/config/virt/cpu/accounting.h) \
     $(wildcard include/config/irq/time/accounting.h) \
+    $(wildcard include/config/tiny/rcu.h) \
+    $(wildcard include/config/tiny/preempt/rcu.h) \
   include/linux/smp_lock.h \
     $(wildcard include/config/lock/kernel.h) \
   include/linux/sched.h \
+    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/detect/softlockup.h) \
     $(wildcard include/config/detect/hung/task.h) \
@@ -185,6 +184,8 @@ deps_kernel/rcutiny.o := \
     $(wildcard include/config/fair/group/sched.h) \
     $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
+    $(wildcard include/config/preempt/rcu.h) \
+    $(wildcard include/config/tree/preempt/rcu.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/sysvipc.h) \
     $(wildcard include/config/auditsyscall.h) \
@@ -207,6 +208,9 @@ deps_kernel/rcutiny.o := \
   include/linux/timex.h \
   include/linux/time.h \
     $(wildcard include/config/arch/uses/gettimeoffset.h) \
+  include/linux/cache.h \
+    $(wildcard include/config/arch/has/cache/line/size.h) \
+  include/linux/seqlock.h \
   include/linux/math64.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/timex.h \
   arch/arm/mach-msm/include/mach/timex.h \
@@ -2833,6 +2837,12 @@ deps_kernel/rcutiny.o := \
   include/linux/ipc.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/ipcbuf.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/sembuf.h \
+  include/linux/rcupdate.h \
+    $(wildcard include/config/rcu/torture/test.h) \
+    $(wildcard include/config/tree/rcu.h) \
+    $(wildcard include/config/prove/rcu.h) \
+    $(wildcard include/config/debug/objects/rcu/head.h) \
+  include/linux/rcutiny.h \
   include/linux/signal.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/signal.h \
   include/asm-generic/signal-defs.h \
@@ -2903,8 +2913,8 @@ deps_kernel/rcutiny.o := \
     $(wildcard include/config/debug/objects/free.h) \
   include/linux/kobject.h \
   include/linux/sysfs.h \
-    $(wildcard include/config/sysfs.h) \
   include/linux/kref.h \
+  include/linux/rcu_types.h \
   include/linux/pfn.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/percpu.h \
   include/asm-generic/percpu.h \
@@ -2963,10 +2973,6 @@ deps_kernel/rcutiny.o := \
   include/linux/elf-em.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/elf.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/user.h \
-  include/linux/moduleparam.h \
-    $(wildcard include/config/alpha.h) \
-    $(wildcard include/config/ia64.h) \
-    $(wildcard include/config/ppc64.h) \
   include/linux/tracepoint.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
@@ -2980,6 +2986,9 @@ deps_kernel/rcutiny.o := \
   include/linux/pm.h \
     $(wildcard include/config/pm/runtime.h) \
   include/linux/node.h \
+  kernel/rcutiny_plugin.h \
+  include/linux/delay.h \
+  /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/delay.h \
 
 kernel/rcutiny.o: $(deps_kernel/rcutiny.o)
 

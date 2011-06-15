@@ -13,7 +13,6 @@
 #include <linux/kref.h>
 #include <linux/radix-tree.h>
 #include <linux/rbtree.h>
-#include <linux/rwlock.h>
 #include <linux/spinlock.h>
 #include <linux/seqlock.h>
 #include <linux/types.h>

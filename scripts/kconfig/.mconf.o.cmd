@@ -1,4 +1,4 @@
-cmd_scripts/kconfig/mconf.o := gcc -Wp,-MD,scripts/kconfig/.mconf.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer   -DCURSES_LOC="<ncurses.h>" -DLOCALE   -c -o scripts/kconfig/mconf.o scripts/kconfig/mconf.c
+cmd_scripts/kconfig/mconf.o := gcc -Wp,-MD,scripts/kconfig/.mconf.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer   -DCURSES_LOC="<ncurses.h>" -DLOCALE   -c -o scripts/kconfig/mconf.o scripts/kconfig/mconf.c
 
 deps_scripts/kconfig/mconf.o := \
   scripts/kconfig/mconf.c \
@@ -21,14 +21,14 @@ deps_scripts/kconfig/mconf.o := \
   /usr/include/errno.h \
   /usr/include/bits/errno.h \
   /usr/include/linux/errno.h \
-  /usr/include/asm/errno.h \
+  /usr/include/i386-linux-gnu/asm/errno.h \
   /usr/include/asm-generic/errno.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/fcntl.h \
   /usr/include/bits/fcntl.h \
   /usr/include/sys/types.h \
   /usr/include/time.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stddef.h \
   /usr/include/sys/select.h \
   /usr/include/bits/select.h \
   /usr/include/bits/sigset.h \
@@ -37,14 +37,14 @@ deps_scripts/kconfig/mconf.o := \
   /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/stat.h \
   /usr/include/bits/fcntl2.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include-fixed/limits.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include-fixed/syslimits.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include-fixed/limits.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include-fixed/syslimits.h \
   /usr/include/limits.h \
   /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h \
   /usr/include/linux/limits.h \
   /usr/include/bits/posix2_lim.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdarg.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdarg.h \
   /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h \
   /usr/include/bits/waitstatus.h \
@@ -73,7 +73,7 @@ deps_scripts/kconfig/mconf.o := \
   /usr/include/bits/sys_errlist.h \
   /usr/include/bits/stdio.h \
   /usr/include/bits/stdio2.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdbool.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdbool.h \
   /usr/include/libintl.h \
   scripts/kconfig/lkc_proto.h \
   scripts/kconfig/lxdialog/dialog.h \

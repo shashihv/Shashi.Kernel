@@ -1,1 +1,1 @@
-cmd_drivers/i2c/algos/built-in.o :=  /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL    -r -o drivers/i2c/algos/built-in.o drivers/i2c/algos/i2c-algo-bit.o 
+cmd_drivers/i2c/algos/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o drivers/i2c/algos/built-in.o drivers/i2c/algos/i2c-algo-bit.o 

@@ -1,1 +1,1 @@
-cmd_sound/core/built-in.o :=  /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL    -r -o sound/core/built-in.o sound/core/snd.o sound/core/snd-timer.o sound/core/snd-pcm.o sound/core/snd-page-alloc.o 
+cmd_sound/core/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o sound/core/built-in.o sound/core/snd.o sound/core/snd-timer.o sound/core/snd-pcm.o sound/core/snd-page-alloc.o 

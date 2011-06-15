@@ -175,7 +175,7 @@ static void zcache_destroy_pool(struct zcache_pool *zpool)
 	spin_unlock(&zcache->pool_lock);
 
 	if (!RB_EMPTY_ROOT(&zpool->inode_tree)) {
-		pr_warn("Memory leak detected. Freeing non-empty pool!\n");
+		//pr_warn("Memory leak detected. Freeing non-empty pool!\n");
 		zcache_dump_stats(zpool);
 	}
 

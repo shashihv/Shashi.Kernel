@@ -1,1 +1,1 @@
-cmd_sound/drivers/pcsp/built-in.o :=  rm -f sound/drivers/pcsp/built-in.o; /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ar rcs sound/drivers/pcsp/built-in.o
+cmd_sound/drivers/pcsp/built-in.o :=  rm -f sound/drivers/pcsp/built-in.o; /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ar rcs sound/drivers/pcsp/built-in.o

@@ -1,4 +1,4 @@
-cmd_drivers/net/ppp_generic.o := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-gcc -Wp,-MD,drivers/net/.ppp_generic.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -O3 -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -Wframe-larger-than=2112 -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-dwarf2-cfi-asm -fconserve-stack  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(ppp_generic)"  -D"KBUILD_MODNAME=KBUILD_STR(ppp_generic)"  -c -o drivers/net/ppp_generic.o drivers/net/ppp_generic.c
+cmd_drivers/net/ppp_generic.o := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-gcc -Wp,-MD,drivers/net/.ppp_generic.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -Os -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(ppp_generic)"  -D"KBUILD_MODNAME=KBUILD_STR(ppp_generic)"  -c -o drivers/net/ppp_generic.o drivers/net/ppp_generic.c
 
 deps_drivers/net/ppp_generic.o := \
   drivers/net/ppp_generic.c \
@@ -85,7 +85,7 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/dynamic/debug.h) \
     $(wildcard include/config/ring/buffer.h) \
     $(wildcard include/config/numa.h) \
-  /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include/stdarg.h \
+  /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h \
   include/linux/bitops.h \
     $(wildcard include/config/generic/find/first/bit.h) \
     $(wildcard include/config/generic/find/last/bit.h) \
@@ -2814,12 +2814,15 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/ppc64.h) \
   include/linux/tracepoint.h \
   include/linux/rcupdate.h \
+    $(wildcard include/config/rcu/torture/test.h) \
     $(wildcard include/config/tree/rcu.h) \
     $(wildcard include/config/tree/preempt/rcu.h) \
     $(wildcard include/config/tiny/rcu.h) \
-  include/linux/rcu_types.h \
+    $(wildcard include/config/tiny/preempt/rcu.h) \
+    $(wildcard include/config/prove/rcu.h) \
+    $(wildcard include/config/debug/objects/rcu/head.h) \
   include/linux/completion.h \
-  include/linux/rcutree.h \
+  include/linux/rcutiny.h \
     $(wildcard include/config/no/hz.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
@@ -2853,6 +2856,7 @@ deps_drivers/net/ppp_generic.o := \
   arch/arm/mach-msm/include/mach/timex.h \
   include/linux/debugobjects.h \
     $(wildcard include/config/debug/objects/free.h) \
+  include/linux/rcu_types.h \
   include/linux/mm_types.h \
     $(wildcard include/config/split/ptlock/cpus.h) \
     $(wildcard include/config/want/page/debug/flags.h) \
@@ -3004,6 +3008,7 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/memory/failure.h) \
     $(wildcard include/config/s390.h) \
   include/linux/vmstat.h \
+    $(wildcard include/config/compaction.h) \
     $(wildcard include/config/vm/event/counters.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/io.h \
   arch/arm/mach-msm/include/mach/io.h \
@@ -3047,6 +3052,45 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/netfilter/debug.h) \
     $(wildcard include/config/nf/nat/needed.h) \
   include/linux/in.h \
+  include/net/flow.h \
+  include/linux/proc_fs.h \
+    $(wildcard include/config/proc/devicetree.h) \
+    $(wildcard include/config/proc/kcore.h) \
+  include/linux/fs.h \
+    $(wildcard include/config/dnotify.h) \
+    $(wildcard include/config/quota.h) \
+    $(wildcard include/config/fsnotify.h) \
+    $(wildcard include/config/inotify.h) \
+    $(wildcard include/config/security.h) \
+    $(wildcard include/config/fs/posix/acl.h) \
+    $(wildcard include/config/epoll.h) \
+    $(wildcard include/config/debug/writecount.h) \
+    $(wildcard include/config/file/locking.h) \
+    $(wildcard include/config/auditsyscall.h) \
+    $(wildcard include/config/block.h) \
+    $(wildcard include/config/fs/xip.h) \
+    $(wildcard include/config/migration.h) \
+  include/linux/limits.h \
+  include/linux/kdev_t.h \
+  include/linux/dcache.h \
+  include/linux/path.h \
+  include/linux/radix-tree.h \
+  include/linux/pid.h \
+  include/linux/capability.h \
+    $(wildcard include/config/security/file/capabilities.h) \
+  include/linux/fiemap.h \
+  include/linux/quota.h \
+  include/linux/dqblk_xfs.h \
+  include/linux/dqblk_v1.h \
+  include/linux/dqblk_v2.h \
+  include/linux/dqblk_qtree.h \
+  include/linux/nfs_fs_i.h \
+  include/linux/nfs.h \
+  include/linux/sunrpc/msg_prot.h \
+  include/linux/inet.h \
+  include/linux/magic.h \
+  include/net/netns/conntrack.h \
+  include/linux/list_nulls.h \
   include/net/netns/xfrm.h \
   include/linux/xfrm.h \
   include/linux/seq_file_net.h \
@@ -3062,6 +3106,7 @@ deps_drivers/net/ppp_generic.o := \
   include/linux/smp_lock.h \
     $(wildcard include/config/lock/kernel.h) \
   include/linux/sched.h \
+    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/detect/softlockup.h) \
     $(wildcard include/config/detect/hung/task.h) \
@@ -3070,7 +3115,6 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/taskstats.h) \
     $(wildcard include/config/audit.h) \
     $(wildcard include/config/inotify/user.h) \
-    $(wildcard include/config/epoll.h) \
     $(wildcard include/config/posix/mqueue.h) \
     $(wildcard include/config/keys.h) \
     $(wildcard include/config/perf/events.h) \
@@ -3079,9 +3123,9 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/fair/group/sched.h) \
     $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
+    $(wildcard include/config/preempt/rcu.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/sysvipc.h) \
-    $(wildcard include/config/auditsyscall.h) \
     $(wildcard include/config/rt/mutexes.h) \
     $(wildcard include/config/task/xacct.h) \
     $(wildcard include/config/cpusets.h) \
@@ -3093,8 +3137,6 @@ deps_drivers/net/ppp_generic.o := \
     $(wildcard include/config/have/unstable/sched/clock.h) \
     $(wildcard include/config/debug/stack/usage.h) \
     $(wildcard include/config/cgroup/sched.h) \
-  include/linux/capability.h \
-    $(wildcard include/config/security/file/capabilities.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/cputime.h \
   include/asm-generic/cputime.h \
   include/linux/sem.h \
@@ -3107,8 +3149,6 @@ deps_drivers/net/ppp_generic.o := \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/sigcontext.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/siginfo.h \
   include/asm-generic/siginfo.h \
-  include/linux/path.h \
-  include/linux/pid.h \
   include/linux/proportions.h \
   include/linux/percpu_counter.h \
   include/linux/seccomp.h \
@@ -3125,7 +3165,6 @@ deps_drivers/net/ppp_generic.o := \
   include/linux/latencytop.h \
   include/linux/cred.h \
     $(wildcard include/config/debug/credentials.h) \
-    $(wildcard include/config/security.h) \
   include/linux/key.h \
   include/linux/selinux.h \
     $(wildcard include/config/security/selinux.h) \
@@ -3144,31 +3183,6 @@ deps_drivers/net/ppp_generic.o := \
   include/linux/poll.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/poll.h \
   include/asm-generic/poll.h \
-  include/linux/fs.h \
-    $(wildcard include/config/dnotify.h) \
-    $(wildcard include/config/quota.h) \
-    $(wildcard include/config/fsnotify.h) \
-    $(wildcard include/config/inotify.h) \
-    $(wildcard include/config/fs/posix/acl.h) \
-    $(wildcard include/config/debug/writecount.h) \
-    $(wildcard include/config/file/locking.h) \
-    $(wildcard include/config/block.h) \
-    $(wildcard include/config/fs/xip.h) \
-    $(wildcard include/config/migration.h) \
-  include/linux/limits.h \
-  include/linux/kdev_t.h \
-  include/linux/dcache.h \
-  include/linux/radix-tree.h \
-  include/linux/fiemap.h \
-  include/linux/quota.h \
-  include/linux/dqblk_xfs.h \
-  include/linux/dqblk_v1.h \
-  include/linux/dqblk_v2.h \
-  include/linux/dqblk_qtree.h \
-  include/linux/nfs_fs_i.h \
-  include/linux/nfs.h \
-  include/linux/sunrpc/msg_prot.h \
-  include/linux/inet.h \
   include/linux/ppp_defs.h \
   include/linux/crc-ccitt.h \
   include/linux/filter.h \
@@ -3185,7 +3199,6 @@ deps_drivers/net/ppp_generic.o := \
   include/linux/tcp.h \
     $(wildcard include/config/tcp/md5sig.h) \
   include/net/sock.h \
-  include/linux/list_nulls.h \
   include/linux/security.h \
     $(wildcard include/config/security/path.h) \
     $(wildcard include/config/security/network.h) \
@@ -3197,7 +3210,6 @@ deps_drivers/net/ppp_generic.o := \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/shmbuf.h \
   include/linux/msg.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/msgbuf.h \
-  include/net/flow.h \
   include/linux/rculist_nulls.h \
   include/net/dst.h \
     $(wildcard include/config/net/cls/route.h) \

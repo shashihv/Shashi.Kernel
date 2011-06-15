@@ -1,4 +1,4 @@
-cmd_drivers/media/common/tuners/mt20xx.o := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-gcc -Wp,-MD,drivers/media/common/tuners/.mt20xx.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -O3 -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -Wframe-larger-than=2112 -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-dwarf2-cfi-asm -fconserve-stack -Idrivers/media/dvb/dvb-core -Idrivers/media/dvb/frontends  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(mt20xx)"  -D"KBUILD_MODNAME=KBUILD_STR(mt20xx)"  -c -o drivers/media/common/tuners/mt20xx.o drivers/media/common/tuners/mt20xx.c
+cmd_drivers/media/common/tuners/mt20xx.o := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-gcc -Wp,-MD,drivers/media/common/tuners/.mt20xx.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -Os -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -Idrivers/media/dvb/dvb-core -Idrivers/media/dvb/frontends  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(mt20xx)"  -D"KBUILD_MODNAME=KBUILD_STR(mt20xx)"  -c -o drivers/media/common/tuners/mt20xx.o drivers/media/common/tuners/mt20xx.c
 
 deps_drivers/media/common/tuners/mt20xx.o := \
   drivers/media/common/tuners/mt20xx.c \
@@ -14,7 +14,7 @@ deps_drivers/media/common/tuners/mt20xx.o := \
     $(wildcard include/config/tracing.h) \
     $(wildcard include/config/numa.h) \
     $(wildcard include/config/ftrace/mcount/record.h) \
-  /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include/stdarg.h \
+  /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h \
   include/linux/linkage.h \
   include/linux/compiler.h \
     $(wildcard include/config/trace/branch/profiling.h) \
@@ -2817,12 +2817,15 @@ deps_drivers/media/common/tuners/mt20xx.o := \
     $(wildcard include/config/ppc64.h) \
   include/linux/tracepoint.h \
   include/linux/rcupdate.h \
+    $(wildcard include/config/rcu/torture/test.h) \
     $(wildcard include/config/tree/rcu.h) \
     $(wildcard include/config/tree/preempt/rcu.h) \
     $(wildcard include/config/tiny/rcu.h) \
-  include/linux/rcu_types.h \
+    $(wildcard include/config/tiny/preempt/rcu.h) \
+    $(wildcard include/config/prove/rcu.h) \
+    $(wildcard include/config/debug/objects/rcu/head.h) \
   include/linux/completion.h \
-  include/linux/rcutree.h \
+  include/linux/rcutiny.h \
     $(wildcard include/config/no/hz.h) \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/local.h \
   include/asm-generic/local.h \
@@ -2856,6 +2859,7 @@ deps_drivers/media/common/tuners/mt20xx.o := \
   arch/arm/mach-msm/include/mach/timex.h \
   include/linux/debugobjects.h \
     $(wildcard include/config/debug/objects/free.h) \
+  include/linux/rcu_types.h \
   include/linux/mm_types.h \
     $(wildcard include/config/split/ptlock/cpus.h) \
     $(wildcard include/config/want/page/debug/flags.h) \
@@ -2897,6 +2901,7 @@ deps_drivers/media/common/tuners/mt20xx.o := \
   include/linux/pm_wakeup.h \
     $(wildcard include/config/pm.h) \
   include/linux/sched.h \
+    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/detect/softlockup.h) \
     $(wildcard include/config/detect/hung/task.h) \
@@ -2915,6 +2920,7 @@ deps_drivers/media/common/tuners/mt20xx.o := \
     $(wildcard include/config/fair/group/sched.h) \
     $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
+    $(wildcard include/config/preempt/rcu.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/sysvipc.h) \
     $(wildcard include/config/auditsyscall.h) \

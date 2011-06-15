@@ -1,4 +1,4 @@
-cmd_kernel/capability.o := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-gcc -Wp,-MD,kernel/.capability.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -O3 -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -Wframe-larger-than=2112 -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-dwarf2-cfi-asm -fconserve-stack  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(capability)"  -D"KBUILD_MODNAME=KBUILD_STR(capability)"  -c -o kernel/capability.o kernel/capability.c
+cmd_kernel/capability.o := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-gcc -Wp,-MD,kernel/.capability.o.d  -nostdinc -isystem /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include -Iinclude  -I/home/francisco/Desktop/franco.Kernel/arch/arm/include -include include/linux/autoconf.h -D__KERNEL__ -mlittle-endian -Iarch/arm/mach-msm/include -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -Os -marm -mabi=aapcs-linux -mno-thumb-interwork -funwind-tables -D__LINUX_ARM_ARCH__=6 -march=armv6k -mtune=arm1136j-s -msoft-float -Uarm -fno-stack-protector -fomit-frame-pointer -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow  -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard -D"KBUILD_STR(s)=\#s" -D"KBUILD_BASENAME=KBUILD_STR(capability)"  -D"KBUILD_MODNAME=KBUILD_STR(capability)"  -c -o kernel/capability.o kernel/capability.c
 
 deps_kernel/capability.o := \
   kernel/capability.c \
@@ -30,6 +30,7 @@ deps_kernel/capability.o := \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/posix_types.h \
   include/linux/elf-em.h \
   include/linux/sched.h \
+    $(wildcard include/config/sched/bfs.h) \
     $(wildcard include/config/sched/debug.h) \
     $(wildcard include/config/smp.h) \
     $(wildcard include/config/no/hz.h) \
@@ -50,6 +51,7 @@ deps_kernel/capability.o := \
     $(wildcard include/config/rt/group/sched.h) \
     $(wildcard include/config/preempt/notifiers.h) \
     $(wildcard include/config/blk/dev/io/trace.h) \
+    $(wildcard include/config/preempt/rcu.h) \
     $(wildcard include/config/tree/preempt/rcu.h) \
     $(wildcard include/config/cc/stackprotector.h) \
     $(wildcard include/config/sysvipc.h) \
@@ -91,7 +93,7 @@ deps_kernel/capability.o := \
     $(wildcard include/config/dynamic/debug.h) \
     $(wildcard include/config/ring/buffer.h) \
     $(wildcard include/config/ftrace/mcount/record.h) \
-  /home/francisco/Desktop/arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/include/stdarg.h \
+  /home/francisco/Desktop/arm-2009q1/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stdarg.h \
   include/linux/linkage.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/linkage.h \
   include/linux/bitops.h \
@@ -2820,10 +2822,13 @@ deps_kernel/capability.o := \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/ipcbuf.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/sembuf.h \
   include/linux/rcupdate.h \
+    $(wildcard include/config/rcu/torture/test.h) \
     $(wildcard include/config/tree/rcu.h) \
     $(wildcard include/config/tiny/rcu.h) \
-  include/linux/rcu_types.h \
-  include/linux/rcutree.h \
+    $(wildcard include/config/tiny/preempt/rcu.h) \
+    $(wildcard include/config/prove/rcu.h) \
+    $(wildcard include/config/debug/objects/rcu/head.h) \
+  include/linux/rcutiny.h \
   include/linux/signal.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/signal.h \
   include/asm-generic/signal-defs.h \
@@ -2899,6 +2904,7 @@ deps_kernel/capability.o := \
   include/linux/sysfs.h \
     $(wildcard include/config/sysfs.h) \
   include/linux/kref.h \
+  include/linux/rcu_types.h \
   include/linux/pfn.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/percpu.h \
   include/asm-generic/percpu.h \
@@ -2975,6 +2981,7 @@ deps_kernel/capability.o := \
     $(wildcard include/config/memory/failure.h) \
     $(wildcard include/config/s390.h) \
   include/linux/vmstat.h \
+    $(wildcard include/config/compaction.h) \
     $(wildcard include/config/vm/event/counters.h) \
   include/linux/module.h \
     $(wildcard include/config/modversions.h) \

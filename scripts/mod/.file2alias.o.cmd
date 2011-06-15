@@ -1,4 +1,4 @@
-cmd_scripts/mod/file2alias.o := gcc -Wp,-MD,scripts/mod/.file2alias.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer     -c -o scripts/mod/file2alias.o scripts/mod/file2alias.c
+cmd_scripts/mod/file2alias.o := gcc -Wp,-MD,scripts/mod/.file2alias.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer     -c -o scripts/mod/file2alias.o scripts/mod/file2alias.c
 
 deps_scripts/mod/file2alias.o := \
   scripts/mod/file2alias.c \
@@ -10,13 +10,13 @@ deps_scripts/mod/file2alias.o := \
   /usr/include/bits/wordsize.h \
   /usr/include/gnu/stubs.h \
   /usr/include/gnu/stubs-32.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stddef.h \
   /usr/include/bits/types.h \
   /usr/include/bits/typesizes.h \
   /usr/include/libio.h \
   /usr/include/_G_config.h \
   /usr/include/wchar.h \
-  /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stdarg.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdarg.h \
   /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h \
   /usr/include/bits/stdio.h \
@@ -56,6 +56,7 @@ deps_scripts/mod/file2alias.o := \
   /usr/include/getopt.h \
   /usr/include/bits/unistd.h \
   /usr/include/elf.h \
+  /usr/lib/i386-linux-gnu/gcc/i686-linux-gnu/4.5.2/include/stdint.h \
   /usr/include/stdint.h \
   /usr/include/bits/wchar.h \
   scripts/mod/elfconfig.h \
