@@ -322,6 +322,7 @@ static void __init cpufreq_table_init(void)
 		}
 	}
 
+	/* freq_table not big enough to store all usable freqs. */
 	BUG_ON(acpu_freq_tbl[i].a11clk_khz != 0);
 
 	freq_table[freq_cnt].index = freq_cnt;
