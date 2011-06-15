@@ -84,6 +84,9 @@
 /* Maximum number of nesting allowed inside epoll sets */
 #define EP_MAX_NESTS 4
 
+/* Maximum msec timeout value storeable in a long int */
+#define EP_MAX_MSTIMEO min(1000ULL * MAX_SCHEDULE_TIMEOUT / HZ, (LONG_MAX - 999ULL) / HZ)
+
 #define EP_MAX_EVENTS (INT_MAX / sizeof(struct epoll_event))
 
 #define EP_UNACTIVE_PTR ((void *) -1L)
@@ -1120,35 +1123,21 @@ static int ep_send_events(struct eventpoll *ep,
 	return ep_scan_ready_list(ep, ep_send_events_proc, &esed);
 }
 
-static inline struct timespec ep_set_mstimeout(long ms)
-{
-  struct timespec now, ts = {
-    .tv_sec = ms / MSEC_PER_SEC,
-    .tv_nsec = NSEC_PER_MSEC * (ms % MSEC_PER_SEC),
-  };
-  
-  ktime_get_ts(&now);
-  return timespec_add_safe(now, ts);
-}
-
 static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
 		   int maxevents, long timeout)
 {
-	int res, eavail, timed_out = 0;
+	int res, eavail;
 	unsigned long flags;
-	long slack;
+	long jtimeout;
 	wait_queue_t wait;
 
-  ktime_t expires, *to = NULL;
-  
-  if (timeout > 0) {
-    struct timespec end_time = ep_set_mstimeout(timeout);
-    slack = select_estimate_accuracy(&end_time);
-    to = &expires;
-    *to = timespec_to_ktime(end_time);
-  } else if (timeout == 0) {
-    timed_out = 1;
-  }
+	/*
+	 * Calculate the timeout by checking for the "infinite" value (-1)
+	 * and the overflow condition. The passed timeout is in milliseconds,
+	 * that why (t * HZ) / 1000.
+	 */
+	jtimeout = (timeout < 0 || timeout >= EP_MAX_MSTIMEO) ?
+		MAX_SCHEDULE_TIMEOUT : (timeout * HZ + 999) / 1000;
 
 retry:
 	spin_lock_irqsave(&ep->lock, flags);
@@ -1171,7 +1160,7 @@ retry:
 			 * to TASK_INTERRUPTIBLE before doing the checks.
 			 */
 			set_current_state(TASK_INTERRUPTIBLE);
-			if (!list_empty(&ep->rdllist) || timed_out)
+			if (!list_empty(&ep->rdllist) || !jtimeout)
 				break;
 			if (signal_pending(current)) {
 				res = -EINTR;
@@ -1179,8 +1168,7 @@ retry:
 			}
 
 			spin_unlock_irqrestore(&ep->lock, flags);
-			if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS))
-        		  timed_out = 1;
+			jtimeout = schedule_timeout(jtimeout);
 			spin_lock_irqsave(&ep->lock, flags);
 		}
 		__remove_wait_queue(&ep->wq, &wait);
@@ -1198,7 +1186,7 @@ retry:
 	 * more luck.
 	 */
 	if (!res && eavail &&
-	    !(res = ep_send_events(ep, events, maxevents)) && !timed_out)
+	    !(res = ep_send_events(ep, events, maxevents)) && jtimeout)
 		goto retry;
 
 	return res;

@@ -609,14 +609,13 @@ static void config_ept(struct msm_endpoint *ept)
 
 	ept->head->config = cfg;
 	ept->head->next = TERMINATE;
-#if 0
+
 	if (ept->ep.maxpacket)
 		dev_dbg(&ui->pdev->dev,
 			"ept #%d %s max:%d head:%p bit:%d\n",
 		       ept->num,
 		       (ept->flags & EPT_FLAG_IN) ? "in" : "out",
 		       ept->ep.maxpacket, ept->head, ept->bit);
-#endif
 }
 
 static void configure_endpoints(struct usb_info *ui)
@@ -1960,11 +1959,7 @@ msm72k_enable(struct usb_ep *_ep, const struct usb_endpoint_descriptor *desc)
 	unsigned char ep_type =
 			desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
 
-	if (ep_type == USB_ENDPOINT_XFER_BULK)
-      	    _ep->maxpacket = le16_to_cpu(desc->wMaxPacketSize);
-  	else
-            _ep->maxpacket = le16_to_cpu(64);
-
+	_ep->maxpacket = le16_to_cpu(desc->wMaxPacketSize);
 	config_ept(ept);
 	usb_ept_enable(ept, 1, ep_type);
 	return 0;

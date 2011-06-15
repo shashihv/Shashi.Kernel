@@ -57,8 +57,7 @@ SECTIONS
   .bss			: { *(.bss) }
   _end = .;
 
-  . = ALIGN(8);    /* the stack must be 64-bit aligned */
-  .stack		: { *(.stack) }
+  .stack (NOLOAD)	: { *(.stack) }
 
   .stab 0		: { *(.stab) }
   .stabstr 0		: { *(.stabstr) }

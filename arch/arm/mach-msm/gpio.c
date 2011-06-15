@@ -271,12 +271,12 @@ static void msm_gpio_update_both_edge_detect(struct msm_gpio_chip *msm_chip)
 	int loop_limit = 100;
 	unsigned pol, val, val2, intstat;
 	do {
-		val = __raw_readl(msm_chip->regs.in);
-    		pol = __raw_readl(msm_chip->regs.int_pos);
+		val = readl(msm_chip->regs.in);
+		pol = readl(msm_chip->regs.int_pos);
 		pol = (pol & ~msm_chip->both_edge_detect) | (~val & msm_chip->both_edge_detect);
-		__raw_writel(pol, msm_chip->regs.int_pos);
-    		intstat = __raw_readl(msm_chip->regs.int_status);
-    		val2 = __raw_readl(msm_chip->regs.in);
+		writel(pol, msm_chip->regs.int_pos);
+		intstat = readl(msm_chip->regs.int_status);
+		val2 = readl(msm_chip->regs.in);
 		if (((val ^ val2) & msm_chip->both_edge_detect & ~intstat) == 0)
 			return;
 	} while (loop_limit-- > 0);
@@ -289,11 +289,11 @@ static int msm_gpio_write(struct goog_gpio_chip *chip, unsigned n, unsigned on)
 	unsigned b = 1U << (n - chip->start);
 	unsigned v;
 
-	v = __raw_readl(msm_chip->regs.out);
+	v = readl(msm_chip->regs.out);
 	if (on) {
-		__raw_writel(v | b, msm_chip->regs.out);
+		writel(v | b, msm_chip->regs.out);
 	} else {
-		__raw_writel(v & (~b), msm_chip->regs.out);
+		writel(v & (~b), msm_chip->regs.out);
 	}
 	return 0;
 }
@@ -302,11 +302,8 @@ static int msm_gpio_read(struct goog_gpio_chip *chip, unsigned n)
 {
 	struct msm_gpio_chip *msm_chip = container_of(chip, struct msm_gpio_chip, chip);
 	unsigned b = 1U << (n - chip->start);
-	int rc;
 
-	rc = (__raw_readl(msm_chip->regs.in) & b) ? 1 : 0;
-	dsb();
-	return rc;
+	return (readl(msm_chip->regs.in) & b) ? 1 : 0;
 }
 
 static int msm_gpio_read_detect_status(struct goog_gpio_chip *chip,
@@ -316,7 +313,7 @@ static int msm_gpio_read_detect_status(struct goog_gpio_chip *chip,
 	unsigned b = 1U << (gpio - chip->start);
 	unsigned v;
 
-	v = __raw_readl(msm_chip->regs.int_status);
+	v = readl(msm_chip->regs.int_status);
 #if MSM_GPIO_BROKEN_INT_CLEAR
 	v |= msm_chip->int_status_copy;
 #endif
@@ -333,10 +330,10 @@ static int msm_gpio_clear_detect_status(struct goog_gpio_chip *chip,
 	/* Save interrupts that already triggered before we loose them. */
 	/* Any interrupt that triggers between the read of int_status */
 	/* and the write to int_clear will still be lost though. */
-	msm_chip->int_status_copy |= __raw_readl(msm_chip->regs.int_status);
+	msm_chip->int_status_copy |= readl(msm_chip->regs.int_status);
 	msm_chip->int_status_copy &= ~b;
 #endif
-	__raw_writel(b, msm_chip->regs.int_clear);
+	writel(b, msm_chip->regs.int_clear);
 	msm_gpio_update_both_edge_detect(msm_chip);
 	return 0;
 }
@@ -353,21 +350,21 @@ int msm_gpio_configure(struct goog_gpio_chip *chip,
 		msm_gpio_write(chip, gpio, flags & GPIOF_OUTPUT_HIGH);
 
 	if (flags & (GPIOF_INPUT | GPIOF_DRIVE_OUTPUT)) {
-		v = __raw_readl(msm_chip->regs.oe);
+		v = readl(msm_chip->regs.oe);
 		if (flags & GPIOF_DRIVE_OUTPUT) {
-			__raw_writel(v | b, msm_chip->regs.oe);
+			writel(v | b, msm_chip->regs.oe);
 		} else {
-			__raw_writel(v & (~b), msm_chip->regs.oe);
+			writel(v & (~b), msm_chip->regs.oe);
 		}
 	}
 
 	if (flags & (IRQF_TRIGGER_MASK | GPIOF_IRQF_TRIGGER_NONE)) {
-		v = __raw_readl(msm_chip->regs.int_edge);
+		v = readl(msm_chip->regs.int_edge);
 		if (flags & (IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING)) {
-			__raw_writel(v | b, msm_chip->regs.int_edge);
+			writel(v | b, msm_chip->regs.int_edge);
 			irq_desc[MSM_GPIO_TO_INT(gpio)].handle_irq = handle_edge_irq;
 		} else {
-			__raw_writel(v & (~b), msm_chip->regs.int_edge);
+			writel(v & (~b), msm_chip->regs.int_edge);
 			irq_desc[MSM_GPIO_TO_INT(gpio)].handle_irq = handle_level_irq;
 		}
 		if ((flags & (IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING)) == (IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING)) {
@@ -375,18 +372,18 @@ int msm_gpio_configure(struct goog_gpio_chip *chip,
 			msm_gpio_update_both_edge_detect(msm_chip);
 		} else {
 			msm_chip->both_edge_detect &= ~b;
-			v = __raw_readl(msm_chip->regs.int_pos);
+			v = readl(msm_chip->regs.int_pos);
 			if (flags & (IRQF_TRIGGER_RISING | IRQF_TRIGGER_HIGH)) {
-				__raw_writel(v | b, msm_chip->regs.int_pos);
+				writel(v | b, msm_chip->regs.int_pos);
 			} else {
-				__raw_writel(v & (~b), msm_chip->regs.int_pos);
+				writel(v & (~b), msm_chip->regs.int_pos);
 			}
 		}
 	}
 
 	/* used by msm_gpio_irq_mask and msm_gpio_irq_unmask */
 	if (flags & (MSM_GPIOF_ENABLE_INTERRUPT | MSM_GPIOF_DISABLE_INTERRUPT)) {
-		v = __raw_readl(msm_chip->regs.int_edge);
+		v = readl(msm_chip->regs.int_edge);
 		/* level triggered interrupts are also latched */
 		if (!(v & b))
 			msm_gpio_clear_detect_status(chip, gpio);
@@ -395,7 +392,7 @@ int msm_gpio_configure(struct goog_gpio_chip *chip,
 		} else {
 			msm_chip->int_enable[0] &= ~b;
 		}
-		__raw_writel(msm_chip->int_enable[0], msm_chip->regs.int_en);
+		writel(msm_chip->int_enable[0], msm_chip->regs.int_en);
 	}
 
 	if (flags & (MSM_GPIOF_ENABLE_WAKE | MSM_GPIOF_DISABLE_WAKE)) {
@@ -469,7 +466,7 @@ static void msm_gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
 
 	for (i = 0; i < ARRAY_SIZE(msm_gpio_chips); i++) {
 		struct msm_gpio_chip *msm_chip = &msm_gpio_chips[i];
-		v = __raw_readl(msm_chip->regs.int_status);
+		v = readl(msm_chip->regs.int_status);
 		v &= msm_chip->int_enable[0];
 		while (v) {
 			m = v & -v;
@@ -545,7 +542,7 @@ void msm_gpio_enter_sleep(int from_idle)
 	}
 
 	for (i = 0; i < ARRAY_SIZE(msm_gpio_chips); i++) {
-		__raw_writel(msm_gpio_chips[i].int_enable[!from_idle], msm_gpio_chips[i].regs.int_en);
+		writel(msm_gpio_chips[i].int_enable[!from_idle], msm_gpio_chips[i].regs.int_en);
 		if (smem_gpio) {
 			uint32_t tmp;
 			int start, index, shiftl, shiftr;
@@ -556,13 +553,12 @@ void msm_gpio_enter_sleep(int from_idle)
 			tmp = msm_gpio_chips[i].int_enable[!from_idle];
 			smem_gpio->enabled[index] |= tmp << shiftl;
 			smem_gpio->enabled[index+1] |= tmp >> shiftr;
-			smem_gpio->detection[index] |= __raw_readl(msm_gpio_chips[i].regs.int_edge) << shiftl;
-			smem_gpio->detection[index+1] |= __raw_readl(msm_gpio_chips[i].regs.int_edge) >> shiftr;
-			smem_gpio->polarity[index] |= __raw_readl(msm_gpio_chips[i].regs.int_pos) << shiftl;
-			smem_gpio->polarity[index+1] |= __raw_readl(msm_gpio_chips[i].regs.int_pos) >> shiftr;
+			smem_gpio->detection[index] |= readl(msm_gpio_chips[i].regs.int_edge) << shiftl;
+			smem_gpio->detection[index+1] |= readl(msm_gpio_chips[i].regs.int_edge) >> shiftr;
+			smem_gpio->polarity[index] |= readl(msm_gpio_chips[i].regs.int_pos) << shiftl;
+			smem_gpio->polarity[index+1] |= readl(msm_gpio_chips[i].regs.int_pos) >> shiftr;
 		}
 	}
-	dsb();
 
 	if (smem_gpio) {
 		if (msm_gpio_debug_mask & GPIO_DEBUG_SLEEP)
@@ -587,7 +583,7 @@ void msm_gpio_exit_sleep(void)
 	smem_gpio = smem_alloc(SMEM_GPIO_INT, sizeof(*smem_gpio)); 
 
 	for (i = 0; i < ARRAY_SIZE(msm_gpio_chips); i++) {
-		__raw_writel(msm_gpio_chips[i].int_enable[0], msm_gpio_chips[i].regs.int_en);
+		writel(msm_gpio_chips[i].int_enable[0], msm_gpio_chips[i].regs.int_en);
 	}
 
 	if (smem_gpio && (smem_gpio->num_fired[0] || smem_gpio->num_fired[1])) {
@@ -608,15 +604,13 @@ static int __init msm_init_gpio(void)
 		set_irq_flags(i, IRQF_VALID);
 	}
 
-	set_irq_chained_handler(INT_GPIO_GROUP1, msm_gpio_irq_handler);
-	set_irq_chained_handler(INT_GPIO_GROUP2, msm_gpio_irq_handler);
-
 	for (i = 0; i < ARRAY_SIZE(msm_gpio_chips); i++) {
-		__raw_writel(0, msm_gpio_chips[i].regs.int_en);
+		writel(0, msm_gpio_chips[i].regs.int_en);
 		register_gpio_chip(&msm_gpio_chips[i].chip);
 	}
 
-	dsb();
+	set_irq_chained_handler(INT_GPIO_GROUP1, msm_gpio_irq_handler);
+	set_irq_chained_handler(INT_GPIO_GROUP2, msm_gpio_irq_handler);
 	set_irq_wake(INT_GPIO_GROUP1, 1);
 	set_irq_wake(INT_GPIO_GROUP2, 2);
 	return 0;

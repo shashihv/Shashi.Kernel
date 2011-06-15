@@ -78,6 +78,9 @@ static struct dentry *debugfs_file;
 static int  msmsdcc_dbg_init(void);
 #endif
 
+#ifdef CONFIG_MMC_AUTO_SUSPEND
+static int msmsdcc_auto_suspend(struct mmc_host *, int);
+#endif
 
 static unsigned int msmsdcc_pwrsave = 1;
 
@@ -642,17 +645,14 @@ static void
 msmsdcc_data_err(struct msmsdcc_host *host, struct mmc_data *data,
 		 unsigned int status)
 {
-	if (status & MCI_DATACRCFAIL) {		
-	  if (!(data->mrq->cmd->opcode == MMC_BUSTEST_W
-	      || data->mrq->cmd->opcode == MMC_BUSTEST_R)) {
+	if (status & MCI_DATACRCFAIL) {
 		pr_err("%s: Data CRC error\n",
-	      mmc_hostname(host->mmc));
+		       mmc_hostname(host->mmc));
 		pr_err("%s: opcode 0x%.8x\n", __func__,
-	      data->mrq->cmd->opcode);
+		       data->mrq->cmd->opcode);
 		pr_err("%s: blksz %d, blocks %d\n", __func__,
-	      data->blksz, data->blocks);
+		       data->blksz, data->blocks);
 		data->error = -EILSEQ;
-    }
 	} else if (status & MCI_DATATIMEOUT) {
 		/* CRC is optional for the bus test commands, not all
 		 * cards respond back with CRC. However controller
@@ -704,15 +704,16 @@ msmsdcc_pio_read(struct msmsdcc_host *host, char *buffer, unsigned int remain)
 
 static int
 msmsdcc_pio_write(struct msmsdcc_host *host, char *buffer,
-		  unsigned int remain)
+		  unsigned int remain, u32 status)
 {
 	void __iomem *base = host->base;
 	char *ptr = buffer;
-	unsigned int maxcnt = MCI_FIFOHALFSIZE;
 
-	while (readl(base + MMCISTATUS) &
-      		(MCI_TXFIFOEMPTY | MCI_TXFIFOHALFEMPTY)) {
-      		unsigned int count, sz;
+	do {
+		unsigned int count, maxcnt, sz;
+
+		maxcnt = status & MCI_TXFIFOEMPTY ? MCI_FIFOSIZE :
+						    MCI_FIFOHALFSIZE;
 		count = min(remain, maxcnt);
 
 		sz = count % 4 ? (count >> 2) + 1 : (count >> 2);
@@ -722,7 +723,9 @@ msmsdcc_pio_write(struct msmsdcc_host *host, char *buffer,
 
 		if (remain == 0)
 			break;
-	}
+
+		status = readl(base + MMCISTATUS);
+	} while (status & MCI_TXFIFOHALFEMPTY);
 
 	return ptr - buffer;
 }
@@ -777,7 +780,7 @@ msmsdcc_pio_irq(int irq, void *dev_id)
 		if (status & MCI_RXACTIVE)
 			len = msmsdcc_pio_read(host, buffer, remain);
 		if (status & MCI_TXACTIVE)
-			len = msmsdcc_pio_write(host, buffer, remain);
+			len = msmsdcc_pio_write(host, buffer, remain, status);
 
 /*LGE_CHANGE_S, [jisung.yang@lge.com], 2010-04-24, when PIO_irq, delay is given */ 
 #if defined(CONFIG_LGE_BCM432X_PATCH)
@@ -1048,17 +1051,6 @@ msmsdcc_request(struct mmc_host *mmc, struct mmc_request *mrq)
 
 	spin_lock_irqsave(&host->lock, flags);
 
-  /*
-   * Enable clocks for SDIO clients if they are already turned off
-   * as part of their low-power management.
-   */
-  	if (mmc->card && (mmc->card->type == MMC_TYPE_SDIO) && !host->clks_on) {
-	    mmc->ios.clock = host->clk_rate;
-            spin_unlock(&host->lock);
-            mmc->ops->set_ios(host->mmc, &host->mmc->ios);
-            spin_lock(&host->lock);
-	}
-
 	if (host->eject) {
 		if (mrq->data && !(mrq->data->flags & MMC_DATA_READ)) {
 			mrq->cmd->error = 0;
@@ -1120,7 +1112,6 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			WARN_ON(rc < 0);
 			host->clk_rate = ios->clock;
 		}
-		msmsdcc_delay(host);
 		clk |= MCI_CLK_ENABLE;
 	}
 
@@ -1143,23 +1134,18 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	switch (ios->power_mode) {
 	case MMC_POWER_OFF:
 		htc_pwrsink_set(PWRSINK_SDCARD, 0);
-		if (!host->sdcc_irq_disabled) {
-      		    disable_irq(host->irqres->start);
-		    host->sdcc_irq_disabled = 1;
-		}
 		break;
 	case MMC_POWER_UP:
 		pwr |= MCI_PWR_UP;
-		if (host->sdcc_irq_disabled) {
-        	    enable_irq(host->irqres->start);
-        	    host->sdcc_irq_disabled = 0;
-    		}
 		break;
 	case MMC_POWER_ON:
 		htc_pwrsink_set(PWRSINK_SDCARD, 100);
 		pwr |= MCI_PWR_ON;
 		break;
 	}
+
+	if (ios->bus_mode == MMC_BUSMODE_OPENDRAIN)
+		pwr |= MCI_OD;
 
 	writel(clk, host->base + MMCICLOCK);
 
@@ -1248,6 +1234,9 @@ static const struct mmc_host_ops msmsdcc_ops = {
 	.get_ro		= msmsdcc_get_ro,
 #ifdef CONFIG_MMC_MSM_SDIO_SUPPORT
 	.enable_sdio_irq = msmsdcc_enable_sdio_irq,
+#endif
+#ifdef CONFIG_MMC_AUTO_SUSPEND
+	.auto_suspend	= msmsdcc_auto_suspend,
 #endif
 	.get_status = msmsdcc_get_status,
 };
@@ -1615,9 +1604,6 @@ msmsdcc_probe(struct platform_device *pdev)
 			  DRIVER_NAME " (pio)", host);
 	if (ret)
 		goto irq_free;
-	
-	disable_irq(irqres->start);
-	host->sdcc_irq_disabled = 1;
 
 	if (plat->sdiowakeup_irq) {
 		ret = request_irq(plat->sdiowakeup_irq,
@@ -1796,6 +1782,11 @@ msmsdcc_suspend(struct platform_device *dev, pm_message_t state)
 /* LGE_CHANGE_S, [jisung.yang@lge.com], 2010-04-24 */
 //	printk(KERN_ERR "msmsdcc_suspend : start \n");
 /* LGE_CHANGE_E, [jisung.yang@lge.com], 2010-04-24 */
+
+#ifdef CONFIG_MMC_AUTO_SUSPEND
+	if (test_and_set_bit(0, &host->suspended))
+		return 0;
+#endif
 	if (mmc) {
 		if (host->plat->status_irq)
 			disable_irq(host->plat->status_irq);
@@ -1851,6 +1842,11 @@ msmsdcc_resume(struct platform_device *dev)
 /* LGE_CHANGE_S, [jisung.yang@lge.com], 2010-04-24 */
 //	printk(KERN_ERR "msmsdcc_resume : start \n");
 /* LGE_CHANGE_E, [jisung.yang@lge.com], 2010-04-24 */
+
+#ifdef CONFIG_MMC_AUTO_SUSPEND
+	if (!test_and_clear_bit(0, &host->suspended))
+		return 0;
+#endif
 	if (mmc) {
 		spin_lock_irqsave(&host->lock, flags);
 		if (!host->clks_on) {
@@ -1903,6 +1899,21 @@ msmsdcc_resume(struct platform_device *dev)
 #else
 #define msmsdcc_suspend NULL
 #define msmsdcc_resume NULL
+#endif
+
+#ifdef CONFIG_MMC_AUTO_SUSPEND
+static int msmsdcc_auto_suspend(struct mmc_host *host, int suspend)
+{
+	struct platform_device *pdev;
+	pdev = container_of(host->parent, struct platform_device, dev);
+
+	if (suspend)
+		return msmsdcc_suspend(pdev, PMSG_AUTO_SUSPEND);
+	else
+		return msmsdcc_resume(pdev);
+}
+#else
+#define msmsdcc_auto_suspend NULL
 #endif
 
 static struct platform_driver msmsdcc_driver = {

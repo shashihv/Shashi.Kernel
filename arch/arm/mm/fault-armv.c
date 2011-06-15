@@ -42,12 +42,16 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address)
 	int ret;
 
 	pgd = pgd_offset(vma->vm_mm, address);
-	if (pgd_none_or_clear_bad(pgd))
-    	  return 0;
+	if (pgd_none(*pgd))
+		goto no_pgd;
+	if (pgd_bad(*pgd))
+		goto bad_pgd;
 
-	pmd = pmd_offset(pgd, address);  
-  	if (pgd_none_or_clear_bad(pgd))
-    	  return 0;
+	pmd = pmd_offset(pgd, address);
+	if (pmd_none(*pmd))
+		goto no_pmd;
+	if (pmd_bad(*pmd))
+		goto bad_pmd;
 
 	pte = pte_offset_map(pmd, address);
 	entry = *pte;
@@ -73,6 +77,18 @@ static int adjust_pte(struct vm_area_struct *vma, unsigned long address)
 	}
 	pte_unmap(pte);
 	return ret;
+
+bad_pgd:
+	pgd_ERROR(*pgd);
+	pgd_clear(pgd);
+no_pgd:
+	return 0;
+
+bad_pmd:
+	pmd_ERROR(*pmd);
+	pmd_clear(pmd);
+no_pmd:
+	return 0;
 }
 
 static void

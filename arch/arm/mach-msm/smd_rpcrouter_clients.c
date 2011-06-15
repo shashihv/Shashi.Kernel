@@ -101,7 +101,7 @@ static int rpc_clients_thread(void *data)
 	client = data;
 	for (;;) {
 		buffer = NULL;
-		rc = msm_rpc_read(client->ept, &buffer, -1, -1);
+		rc = msm_rpc_read(client->ept, &buffer, -1, HZ);
 
 		if (client->exit_flag) {
 			kfree(buffer);
@@ -291,7 +291,6 @@ struct msm_rpc_client *msm_rpc_register_client(
 	if (IS_ERR(client->cb_thread)) {
 		rc = PTR_ERR(client->cb_thread);
 		client->exit_flag = 1;
-		msm_rpc_read_wakeup(client->ept);
 		wait_for_completion(&client->complete);
 		msm_rpc_close(client->ept);
 		msm_rpc_destroy_client(client);
@@ -370,7 +369,7 @@ struct msm_rpc_client *msm_rpc_register_client2(
 					"k%sclntcbd", name);
 	if (IS_ERR(client->cb_thread)) {
 		rc = PTR_ERR(client->cb_thread);
-		msm_rpc_read_wakeup(client->ept);
+		client->exit_flag = 1;
 		wait_for_completion(&client->complete);
 		msm_rpc_close(client->ept);
 		msm_rpc_destroy_client(client);
@@ -401,7 +400,6 @@ int msm_rpc_unregister_client(struct msm_rpc_client *client)
 		wait_for_completion(&client->cb_complete);
 	}
 
-	msm_rpc_read_wakeup(client->ept);
 	wait_for_completion(&client->complete);
 
 	msm_rpc_close(client->ept);

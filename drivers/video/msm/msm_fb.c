@@ -767,14 +767,6 @@ static struct fb_ops msm_fb_ops = {
 	.fb_mmap = msm_fb_mmap,
 };
 
-static __u32 msm_fb_line_length(__u32 fb_index, __u32 xres, int bpp)
-{
-    if (fb_index == 0)
-  return ALIGN(xres, 32) * bpp;
-    else
-  return xres * bpp;
-}
-
 static int msm_fb_register(struct msm_fb_data_type *mfd)
 {
 	int ret = -ENODEV;
@@ -928,6 +920,8 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 		fix->line_length = panel_info->xres * bpp;
 
 	fix->smem_len = fix->line_length * panel_info->yres * mfd->fb_page;
+
+
 
 	mfd->var_xres = panel_info->xres;
 	mfd->var_yres = panel_info->yres;
@@ -2410,7 +2404,6 @@ static void msmfb_set_color_conv(struct mdp_ccs *p)
 			writel(p->bv[i], MDP_CSC_POST_BV2n(i));
 		#endif
 
-		dsb();
 		/* MDP cmd block disable */
 		mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 	} else {
@@ -2422,8 +2415,7 @@ static void msmfb_set_color_conv(struct mdp_ccs *p)
 			writel(p->ccs[i], MDP_CSC_PRMVn(i));
 		for (i = 0; i < MDP_BV_SIZE; i++)
 			writel(p->bv[i], MDP_CSC_PRE_BV1n(i));
-		
-		dsb();
+
 		/* MDP cmd block disable */
 		mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 	}
@@ -2550,7 +2542,6 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			writel(grp_id, MDP_FULL_BYPASS_WORD43);
 			mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF,
 				      FALSE);
-			dsb();
 			break;
 		}
 #else

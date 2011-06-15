@@ -114,7 +114,6 @@ deps_config := \
 	drivers/staging/rtl8187se/Kconfig \
 	drivers/staging/altpciechdma/Kconfig \
 	drivers/staging/panel/Kconfig \
-	drivers/staging/zram/Kconfig \
 	drivers/staging/asus_oled/Kconfig \
 	drivers/staging/comedi/Kconfig \
 	drivers/staging/rt3090/Kconfig \

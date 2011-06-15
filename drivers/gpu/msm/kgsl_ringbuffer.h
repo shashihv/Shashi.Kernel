@@ -28,6 +28,8 @@
  */
 #ifndef __GSL_RINGBUFFER_H
 #define __GSL_RINGBUFFER_H
+
+#include <linux/types.h>
 #include <linux/msm_kgsl.h>
 #include <linux/mutex.h>
 #include "kgsl_log.h"
@@ -182,8 +184,10 @@ struct kgsl_ringbuffer {
 
 #define GSL_RB_WRITE(ring, data) \
 	do { \
-		__raw_writel(data, ring); \
+		mb(); \
+		writel(data, ring); \
 		ring++; \
+		wmb(); \
 	} while (0)
 
 /* timestamp */
@@ -208,7 +212,8 @@ struct kgsl_ringbuffer {
 #define GSL_RB_CNTL_NO_UPDATE 0x0 /* enable */
 #define GSL_RB_GET_READPTR(rb, data) \
 	do { \
-		*(data) = __raw_readl(&(rb)->memptrs->rptr); \
+		*(data) = readl(&(rb)->memptrs->rptr); \
+		rmb(); \
 	} while (0)
 #else
 #define GSL_RB_CNTL_NO_UPDATE 0x1 /* disable */
@@ -222,7 +227,7 @@ struct kgsl_ringbuffer {
 #ifdef GSL_RB_USE_WPTR_POLLING
 #define GSL_RB_CNTL_POLL_EN 0x1 /* enable */
 #define GSL_RB_UPDATE_WPTR_POLLING(rb) \
-	do { __raw_writel((rb)->wptr, &((rb)->memptrs->wptr_poll)); } while (0)
+	do { writel((rb)->wptr, &((rb)->memptrs->wptr_poll)); } while (0)
 #else
 #define GSL_RB_CNTL_POLL_EN 0x0 /* disable */
 #define GSL_RB_UPDATE_WPTR_POLLING(rb)
@@ -244,10 +249,6 @@ int kgsl_ringbuffer_issueibcmds(struct kgsl_device_private *dev_priv,
 				unsigned int flags);
 
 int kgsl_ringbuffer_init(struct kgsl_device *device);
-
-int kgsl_ringbuffer_start(struct kgsl_ringbuffer *rb);
-
-int kgsl_ringbuffer_stop(struct kgsl_ringbuffer *rb);
 
 int kgsl_ringbuffer_close(struct kgsl_ringbuffer *rb);
 

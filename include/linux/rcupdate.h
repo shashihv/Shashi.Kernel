@@ -56,6 +56,17 @@ struct rcu_head {
 };
 
 /* Exported common interfaces */
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TREE_PREEMPT_RCU
+extern void synchronize_rcu(void);
+#else /* #ifdef CONFIG_TREE_PREEMPT_RCU */
+#define synchronize_rcu synchronize_sched
+#endif /* #else #ifdef CONFIG_TREE_PREEMPT_RCU */
+extern void synchronize_rcu_bh(void);
+extern void synchronize_sched(void);
+extern void rcu_barrier(void);
+>>>>>>> parent of 1c1f897... v15.1 merge
 extern void rcu_barrier_bh(void);
 extern void rcu_barrier_sched(void);
 extern void synchronize_sched_expedited(void);
@@ -63,6 +74,13 @@ extern int sched_expedited_torture_stats(char *page);
 
 /* Internal to kernel */
 extern void rcu_init(void);
+extern void rcu_scheduler_starting(void);
+#ifndef CONFIG_TINY_RCU
+extern int rcu_needs_cpu(int cpu);
+#else
+static inline int rcu_needs_cpu(int cpu) { return 0; }
+#endif
+extern int rcu_scheduler_active;
 
 #if defined(CONFIG_TREE_RCU) || defined(CONFIG_TREE_PREEMPT_RCU)
 #include <linux/rcutree.h>

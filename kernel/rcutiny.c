@@ -22,19 +22,28 @@
  * For detailed explanation of Read-Copy Update mechanism see -
  *		Documentation/RCU
  */
+<<<<<<< HEAD
 #include <linux/moduleparam.h>
 #include <linux/completion.h>
 #include <linux/interrupt.h>
 #include <linux/notifier.h>
 #include <linux/rcupdate.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/mutex.h>
-#include <linux/sched.h>
+=======
+
 #include <linux/types.h>
+>>>>>>> parent of 1c1f897... v15.1 merge
+#include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/time.h>
+#include <linux/rcupdate.h>
+#include <linux/interrupt.h>
+#include <linux/sched.h>
+#include <linux/module.h>
+#include <linux/completion.h>
+#include <linux/moduleparam.h>
+#include <linux/notifier.h>
 #include <linux/cpu.h>
+#include <linux/mutex.h>
+#include <linux/time.h>
 
 /* Global control variables for rcupdate callback mechanism. */
 struct rcu_ctrlblk {
@@ -44,14 +53,26 @@ struct rcu_ctrlblk {
 };
 
 /* Definition for rcupdate control block. */
+<<<<<<< HEAD
 static struct rcu_ctrlblk rcu_sched_ctrlblk = {
 	.donetail	= &rcu_sched_ctrlblk.rcucblist,
 	.curtail	= &rcu_sched_ctrlblk.rcucblist,
+=======
+static struct rcu_ctrlblk rcu_ctrlblk = {
+	.rcucblist = NULL,
+	.donetail = &rcu_ctrlblk.rcucblist,
+	.curtail = &rcu_ctrlblk.rcucblist,
+>>>>>>> parent of 1c1f897... v15.1 merge
 };
-
 static struct rcu_ctrlblk rcu_bh_ctrlblk = {
+<<<<<<< HEAD
 	.donetail	= &rcu_bh_ctrlblk.rcucblist,
 	.curtail	= &rcu_bh_ctrlblk.rcucblist,
+=======
+	.rcucblist = NULL,
+	.donetail = &rcu_bh_ctrlblk.rcucblist,
+	.curtail = &rcu_bh_ctrlblk.rcucblist,
+>>>>>>> parent of 1c1f897... v15.1 merge
 };
 
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
@@ -110,7 +131,6 @@ static int rcu_qsctr_help(struct rcu_ctrlblk *rcp)
 		return 1;
 	}
 	local_irq_restore(flags);
-
 	return 0;
 }
 
@@ -157,8 +177,8 @@ void rcu_check_callbacks(int cpu, int user)
  */
 static void __rcu_process_callbacks(struct rcu_ctrlblk *rcp)
 {
-	struct rcu_head *next, *list;
 	unsigned long flags;
+	struct rcu_head *next, *list;
 
 	/* If no RCU callbacks ready to invoke, just return. */
 	if (&rcp->rcucblist == rcp->donetail)
@@ -195,6 +215,16 @@ static void rcu_process_callbacks(struct softirq_action *unused)
 }
 
 /*
+ * Null function to handle CPU being onlined.  Longer term, we want to
+ * make TINY_RCU avoid using rcupdate.c, but later...
+ */
+int rcu_cpu_notify(struct notifier_block *self,
+		   unsigned long action, void *hcpu)
+{
+	return NOTIFY_OK;
+}
+
+/*
  * Wait for a grace period to elapse.  But it is illegal to invoke
  * synchronize_sched() from within an RCU read-side critical section.
  * Therefore, any legal call to synchronize_sched() is a quiescent
@@ -204,8 +234,12 @@ static void rcu_process_callbacks(struct softirq_action *unused)
  *
  * Cool, huh?  (Due to Josh Triplett.)
  *
+<<<<<<< HEAD
  * But we want to make this a static inline later.  The cond_resched()
  * currently makes this problematic.
+=======
+ * But we want to make this a static inline later.
+>>>>>>> parent of 1c1f897... v15.1 merge
  */
 void synchronize_sched(void)
 {
@@ -224,7 +258,6 @@ static void __call_rcu(struct rcu_head *head,
 
 	head->func = func;
 	head->next = NULL;
-
 	local_irq_save(flags);
 	*rcp->curtail = head;
 	rcp->curtail = &head->next;
@@ -236,7 +269,12 @@ static void __call_rcu(struct rcu_head *head,
  * period.  But since we have but one CPU, that would be after any
  * quiescent state.
  */
+<<<<<<< HEAD
 void call_rcu_sched(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
+=======
+void call_rcu(struct rcu_head *head,
+	      void (*func)(struct rcu_head *rcu))
+>>>>>>> parent of 1c1f897... v15.1 merge
 {
 	__call_rcu(head, func, &rcu_sched_ctrlblk);
 }
@@ -246,7 +284,8 @@ EXPORT_SYMBOL_GPL(call_rcu_sched);
  * Post an RCU bottom-half callback to be invoked after any subsequent
  * quiescent state.
  */
-void call_rcu_bh(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
+void call_rcu_bh(struct rcu_head *head,
+		 void (*func)(struct rcu_head *rcu))
 {
 	__call_rcu(head, func, &rcu_bh_ctrlblk);
 }
@@ -280,7 +319,7 @@ void rcu_barrier_sched(void)
 }
 EXPORT_SYMBOL_GPL(rcu_barrier_sched);
 
-void __init rcu_init(void)
+void __rcu_init(void)
 {
 	open_softirq(RCU_SOFTIRQ, rcu_process_callbacks);
 }

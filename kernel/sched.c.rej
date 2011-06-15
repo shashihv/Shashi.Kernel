@@ -1,7 +1,0 @@
---- kernel/sched.c	2011-05-17 17:01:14.595449093 +1000
-+++ kernel/sched.c	2011-05-17 17:00:59.018783206 +1000
-@@ -11186,4 +11183,3 @@
- EXPORT_SYMBOL_GPL(synchronize_sched_expedited);
- 
- #endif /* #else #ifndef CONFIG_SMP */
--#endif /* CONFIG_SCHED_BFS */

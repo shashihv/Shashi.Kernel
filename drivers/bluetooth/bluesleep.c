@@ -681,6 +681,7 @@ static int bluesleep_remove(struct platform_device *pdev)
 }
 
 static struct platform_driver bluesleep_driver = {
+	.probe = bluesleep_probe,
 	.remove = bluesleep_remove,
 	.driver = {
 		.name = "bluesleep",
@@ -699,7 +700,7 @@ static int __init bluesleep_init(void)
 
 	BT_INFO("MSM Sleep Mode Driver Ver %s", VERSION);
 
-	retval = platform_driver_probe(&bluesleep_driver, bluesleep_probe);
+	retval = platform_driver_register(&bluesleep_driver);
 	if (retval)
 		return retval;
 

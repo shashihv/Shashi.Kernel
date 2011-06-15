@@ -182,7 +182,11 @@ SUBARCH := arm
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= $(SUBARCH)
+<<<<<<< HEAD
 CROSS_COMPILE	?= /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-
+=======
+CROSS_COMPILE	?= arm-2011.03/bin/arm-none-eabi-
+>>>>>>> parent of 1c1f897... v15.1 merge
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -326,11 +330,11 @@ LGE_CF		= -D__CHECK_ENDIAN__ -Wcast-truncate -Wno-paren-string -Wtypesign
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF) $(LGE_CF)
 MODFLAGS	= -DMODULE
-CFLAGS_MODULE   = $(MODFLAGS) -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
-AFLAGS_MODULE   = $(MODFLAGS) -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
+CFLAGS_MODULE   =
+AFLAGS_MODULE   =
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL	= -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
-AFLAGS_KERNEL	= -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
+CFLAGS_KERNEL	=
+AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -347,8 +351,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks \
-		   	      -mfpu=vfp -mtune=arm1136jf-s -mfloat-abi=hard
+		   -fno-delete-null-pointer-checks
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)

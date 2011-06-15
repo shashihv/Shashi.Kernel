@@ -250,6 +250,7 @@ static void cpufreq_interactive_timer(unsigned long data)
 					   &index)) {
 		dbgpr("timer %d: cpufreq_frequency_table_target error\n", (int) data);
 		goto rearm;
+
 	}
 
 	new_freq = pcpu->freq_table[index].frequency;
@@ -560,6 +561,7 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *new_policy,
 				&interactive_attr_group);
 
 		pm_idle = pm_idle_old;
+
 		del_timer(&pcpu->cpu_timer);
 		break;
 

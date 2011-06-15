@@ -12,7 +12,9 @@ static inline void pm_runtime_remove(struct device *dev) {}
 
 #ifdef CONFIG_PM_SLEEP
 
-extern int pm_async_enabled;
+/*
+ * main.c
+ */
 
 extern struct list_head dpm_list;	/* The active device list */
 

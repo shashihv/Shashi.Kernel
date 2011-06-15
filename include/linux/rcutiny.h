@@ -22,6 +22,7 @@
  * For detailed explanation of Read-Copy Update mechanism see -
  *		Documentation/RCU
  */
+
 #ifndef __LINUX_TINY_H
 #define __LINUX_TINY_H
 
@@ -43,6 +44,7 @@ extern void call_rcu_sched(struct rcu_head *head,
 			   void (*func)(struct rcu_head *rcu));
 
 #define rcu_init_sched()	do { } while (0)
+<<<<<<< HEAD
 
 extern void synchronize_sched(void);
 
@@ -56,6 +58,15 @@ static inline void synchronize_rcu(void)
 }
 
 static inline void synchronize_rcu_expedited(void)
+=======
+extern void rcu_check_callbacks(int cpu, int user);
+extern void __rcu_init(void);
+
+/*
+ * Return the number of grace periods.
+ */
+static inline long rcu_batches_completed(void)
+>>>>>>> parent of 1c1f897... v15.1 merge
 {
 	synchronize_sched();	/* Only one CPU, so pretty fast anyway!!! */
 }
@@ -67,6 +78,7 @@ static inline void rcu_barrier(void)
 
 #else /* #ifdef CONFIG_TINY_RCU */
 
+<<<<<<< HEAD
 void synchronize_rcu(void);
 void rcu_barrier(void);
 void synchronize_rcu_expedited(void);
@@ -74,6 +86,9 @@ void synchronize_rcu_expedited(void);
 #endif /* #else #ifdef CONFIG_TINY_RCU */
 
 static inline void synchronize_rcu_bh(void)
+=======
+static inline void synchronize_rcu_expedited(void)
+>>>>>>> parent of 1c1f897... v15.1 merge
 {
 	synchronize_sched();
 }
@@ -84,6 +99,8 @@ static inline void synchronize_rcu_bh_expedited(void)
 }
 
 struct notifier_block;
+extern int rcu_cpu_notify(struct notifier_block *self,
+			  unsigned long action, void *hcpu);
 
 #ifdef CONFIG_NO_HZ
 
@@ -112,6 +129,7 @@ static inline void exit_rcu(void)
 {
 }
 
+<<<<<<< HEAD
 static inline int rcu_needs_cpu(int cpu)
 {
 	return 0;
@@ -191,4 +209,6 @@ static inline void rcu_scheduler_starting(void)
 
 #endif /* #else #ifdef CONFIG_DEBUG_LOCK_ALLOC */
 
+=======
+>>>>>>> parent of 1c1f897... v15.1 merge
 #endif /* __LINUX_RCUTINY_H */
