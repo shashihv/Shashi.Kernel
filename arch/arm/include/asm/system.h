@@ -143,7 +143,7 @@ extern unsigned int user_debug;
 
 #if __LINUX_ARM_ARCH__ >= 7 || defined(CONFIG_SMP) || defined(CONFIG_ARCH_MSM)
 #define mb()		dmb()
-#define rmb()		dmb()
+#define rmb()		dsb()
 #define wmb()		dmb()
 #else
 #define mb()	do { if (arch_is_coherent()) dmb(); else barrier(); } while (0)

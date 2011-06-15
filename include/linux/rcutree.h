@@ -83,10 +83,7 @@ static inline void synchronize_rcu_bh_expedited(void)
 	synchronize_sched_expedited();
 }
 
-<<<<<<< HEAD
 extern void rcu_barrier(void);
-=======
->>>>>>> parent of 1c1f897... v15.1 merge
 extern void __rcu_init(void);
 extern void rcu_check_callbacks(int cpu, int user);
 

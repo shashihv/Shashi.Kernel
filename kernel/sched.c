@@ -79,7 +79,6 @@
 #include <asm/irq_regs.h>
 
 #include "sched_cpupri.h"
-#include "sched_autogroup.h"
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/sched.h>
@@ -128,7 +127,7 @@ extern int LG_ErrorHandler_enable ;
 
 static inline int rt_policy(int policy)
 {
-	if (unlikely(policy == SCHED_FIFO || policy == SCHED_RR))
+	if (policy == SCHED_FIFO || policy == SCHED_RR)
 		return 1;
 	return 0;
 }
@@ -315,22 +314,15 @@ struct task_group init_task_group;
 /* return group to which a task belongs */
 static inline struct task_group *task_group(struct task_struct *p)
 {
+	struct task_group *tg;
 
 #ifdef CONFIG_CGROUP_SCHED
-	struct task_group *tg;
-     	struct cgroup_subsys_state *css;
-
-    	css = task_subsys_state(p, cpu_cgroup_subsys_id);
-
-   	tg = container_of(css, struct task_group, css);
-
-    	return autogroup_task_group(p, tg);
+	tg = container_of(task_subsys_state(p, cpu_cgroup_subsys_id),
+	struct task_group, css);
 #else
-	struct task_group *tg;	
 	tg = &init_task_group;
-	
-	return tg;
 #endif
+	return tg;
 }
 
 /* Change a task's cfs_rq and parent entity if it moves across CPUs/groups */
@@ -507,11 +499,7 @@ struct rq {
 	#define CPU_LOAD_IDX_MAX 5
 	unsigned long cpu_load[CPU_LOAD_IDX_MAX];
 #ifdef CONFIG_NO_HZ
-<<<<<<< HEAD
 	u64 nohz_stamp;
-=======
-	unsigned long last_tick_seen;
->>>>>>> parent of 1c1f897... v15.1 merge
 	unsigned char in_nohz_recently;
 #endif
 	/* capture load from *all* tasks on this cpu: */
@@ -1926,7 +1914,6 @@ static void sched_irq_time_avg_update(struct rq *rq, u64 curr_irq_time) { }
 #include "sched_idletask.c"
 #include "sched_fair.c"
 #include "sched_rt.c"
-#include "sched_autogroup.c"
 #ifdef CONFIG_SCHED_DEBUG
 # include "sched_debug.c"
 #endif
@@ -1947,12 +1934,6 @@ static void dec_nr_running(struct rq *rq)
 
 static void set_load_weight(struct task_struct *p)
 {
-	if (task_has_rt_policy(p)) {
-		p->se.load.weight = 0;
-		p->se.load.inv_weight = WMULT_CONST;
-		return;
-	}
-
 	/*
 	 * SCHED_IDLE tasks get minimal weight:
 	 */
@@ -2130,7 +2111,7 @@ task_hot(struct task_struct *p, u64 now, struct sched_domain *sd)
 	if (p->sched_class != &fair_sched_class)
 		return 0;
 
-	if (unlikely(p->policy == SCHED_IDLE))
+	if (p->policy == SCHED_IDLE)
 		return 0;
 
 	/*
@@ -2504,7 +2485,7 @@ static int try_to_wake_up(struct task_struct *p, unsigned int state,
 {
 	int cpu, orig_cpu, this_cpu, success = 0;
 	unsigned long flags;
-	struct rq *rq, *orig_rq;
+	struct rq *rq;
 
 	if (!sched_feat(SYNC_WAKEUPS))
 		wake_flags &= ~WF_SYNC;
@@ -2512,7 +2493,7 @@ static int try_to_wake_up(struct task_struct *p, unsigned int state,
 	this_cpu = get_cpu();
 
 	smp_wmb();
-	rq = orig_rq = task_rq_lock(p, &flags);
+	rq = task_rq_lock(p, &flags);
 	update_rq_clock(rq);
 	if (!(p->state & state))
 		goto out;
@@ -2616,7 +2597,7 @@ out_running:
 	if (p->sched_class->task_woken)
 		p->sched_class->task_woken(rq, p);
 
-	if (unlikely(rq->idle_stamp)) {
+	if (rq->idle_stamp) {
 		u64 delta = rq->clock - rq->idle_stamp;
 		u64 max = 2*sysctl_sched_migration_cost;
 
@@ -5861,7 +5842,7 @@ int mutex_spin_on_owner(struct mutex *lock, struct thread_info *owner)
  * off of preempt_enable. Kernel preemptions off return from interrupt
  * occur there and call schedule directly.
  */
-asmlinkage void __sched preempt_schedule(void)
+asmlinkage void __sched notrace preempt_schedule(void)
 {
 	struct thread_info *ti = current_thread_info();
 
@@ -5873,9 +5854,9 @@ asmlinkage void __sched preempt_schedule(void)
 		return;
 
 	do {
-		add_preempt_count(PREEMPT_ACTIVE);
+		add_preempt_count_notrace(PREEMPT_ACTIVE);
 		schedule();
-		sub_preempt_count(PREEMPT_ACTIVE);
+		sub_preempt_count_notrace(PREEMPT_ACTIVE);
 
 		/*
 		 * Check again in case we missed a preemption opportunity
@@ -9823,7 +9804,6 @@ void __init sched_init(void)
 				&per_cpu(init_sched_rt_entity, i), i, 1,
 				root_task_group.rt_se[i]);
 #endif /* CONFIG_USER_SCHED */
-		autogroup_init(&init_task);
 #endif /* CONFIG_GROUP_SCHED */
 
 		for (j = 0; j < CPU_LOAD_IDX_MAX; j++)
@@ -9903,7 +9883,7 @@ void __init sched_init(void)
 #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
 static inline int preempt_count_equals(int preempt_offset)
 {
-	int nested = preempt_count() & ~PREEMPT_ACTIVE;
+	int nested = (preempt_count() & ~PREEMPT_ACTIVE) + rcu_preempt_depth();
 
 	return (nested == PREEMPT_INATOMIC_BASE + preempt_offset);
 }
@@ -10303,9 +10283,13 @@ void sched_destroy_group(struct task_group *tg)
  *	by now. This function just updates tsk->se.cfs_rq and tsk->se.parent to
  *	reflect its new group.
  */
-void __sched_move_task(struct task_struct *tsk, struct rq *rq)
+void sched_move_task(struct task_struct *tsk)
 {
 	int on_rq, running;
+	unsigned long flags;
+    	struct rq *rq;
+    	
+	rq = task_rq_lock(tsk, &flags);
 
 	update_rq_clock(rq);
 
@@ -10328,15 +10312,6 @@ void __sched_move_task(struct task_struct *tsk, struct rq *rq)
 		tsk->sched_class->set_curr_task(rq);
 	if (on_rq)
 		enqueue_task(rq, tsk, 0, false);
-}
-
-void sched_move_task(struct task_struct *tsk)
-{
-    	struct rq *rq;
-    	unsigned long flags;
-
-    	rq = task_rq_lock(tsk, &flags);
-    	__sched_move_task(tsk, rq);	
 
 	task_rq_unlock(rq, &flags);
 }

@@ -567,6 +567,11 @@ static int msm_startup(struct uart_port *port)
 	if (unlikely(ret))
 		return ret;
 
+	if (unlikely(set_irq_wake(port->irq, 1))) {
+      	    free_irq(port->irq, port);
+      	    return -ENXIO;
+ 	}	
+
 	msm_init_clock(port);
 
 	if (likely(port->fifosize > 12))
@@ -1031,9 +1036,6 @@ static int __init msm_serial_probe(struct platform_device *pdev)
 		return -ENXIO;
 
 	platform_set_drvdata(pdev, port);
-
-	if (unlikely(set_irq_wake(port->irq, 1)))
-		return -ENXIO;
 
 #ifdef CONFIG_SERIAL_MSM_RX_WAKEUP
 	if (pdata == NULL)

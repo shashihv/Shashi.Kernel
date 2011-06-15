@@ -386,22 +386,7 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= &proc_dointvec,
 	},
-<<<<<<< HEAD
 #endif /* !CONFIG_SCHED_BFS */
-=======
-#ifdef CONFIG_SCHED_AUTOGROUP
-	{
-		.ctl_name    	= CTL_UNNUMBERED,
-		.procname    	= "sched_autogroup_enabled",
-		.data        	= &sysctl_sched_autogroup_enabled,
-		.maxlen        	= sizeof(unsigned int),
-		.mode        	= 0644,
-		.proc_handler   = proc_dointvec,
-		.extra1        	= &zero,
-		.extra2        	= &one,
-	},
-#endif
->>>>>>> parent of 1c1f897... v15.1 merge
 #ifdef CONFIG_PROVE_LOCKING
 	{
 		.ctl_name	= CTL_UNNUMBERED,

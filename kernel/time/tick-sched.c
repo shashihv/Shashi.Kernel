@@ -280,14 +280,13 @@ void tick_nohz_stop_sched_tick(int inidle)
 		else
 			time_delta = KTIME_MAX;
 	} while (read_seqretry(&xtime_lock, seq));
-
+#ifdef CONFIG_SCHED_BFS
+  	if (rcu_needs_cpu(cpu) || printk_needs_cpu(cpu) ||
+      	    arch_needs_cpu(cpu)) {
+#else
 	if (rcu_needs_cpu(cpu) || printk_needs_cpu(cpu) ||
-<<<<<<< HEAD
 	    arch_needs_cpu(cpu) || nohz_ratelimit(cpu)) {
 #endif
-=======
-	    arch_needs_cpu(cpu)) {
->>>>>>> parent of 1c1f897... v15.1 merge
 		next_jiffies = last_jiffies + 1;
 		delta_jiffies = 1;
 	} else {

@@ -1832,7 +1832,7 @@ static void msm7x27_wlan_init(void)
 static void __init msm7x2x_init(void)
 {
 	if (socinfo_init() < 0)
-		BUG();
+                BUG();
 #ifdef CONFIG_ARCH_MSM7X25
 	msm_clock_init(msm_clocks_7x25, msm_num_clocks_7x25);
 #elif CONFIG_ARCH_MSM7X27

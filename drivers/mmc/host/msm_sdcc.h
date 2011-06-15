@@ -247,9 +247,6 @@ struct msmsdcc_host {
 
 	struct tasklet_struct 	dma_tlet;
 
-#ifdef CONFIG_MMC_AUTO_SUSPEND
-	unsigned long           suspended;
-#endif
 	unsigned int prog_scan;
 	unsigned int prog_enable;
 
@@ -264,6 +261,7 @@ struct msmsdcc_host {
 	unsigned int	dummy_52_needed;
 	unsigned int	dummy_52_state;
 
+	unsigned int sdcc_irq_disabled;
 };
 
 #endif

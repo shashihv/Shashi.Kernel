@@ -155,22 +155,23 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(wdf_device_info_t, dhd_get_wdf_device_info)
 
 #endif /* NDIS60 */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP)
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP)
 
-#define DHD_PM_RESUME_WAIT_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
-#define _DHD_PM_RESUME_WAIT(a, b) do {\
+	#define DHD_PM_RESUME_WAIT_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
+	#define _DHD_PM_RESUME_WAIT(a, b) do {\
 			int retry = 0; \
+			smp_mb(); \
 			while (dhd_mmc_suspend && retry++ != b) { \
 				wait_event_timeout(a, FALSE, HZ/100); \
 			} \
 		} 	while (0)
-#define DHD_PM_RESUME_WAIT(a) 			_DHD_PM_RESUME_WAIT(a, 30)
-#define DHD_PM_RESUME_WAIT_FOREVER(a) 	_DHD_PM_RESUME_WAIT(a, ~0)
-#define DHD_PM_RESUME_RETURN_ERROR(a)	do { if (dhd_mmc_suspend) return a; } while (0)
-#define DHD_PM_RESUME_RETURN		do { if (dhd_mmc_suspend) return; } while (0)
+	#define DHD_PM_RESUME_WAIT(a) 			_DHD_PM_RESUME_WAIT(a, 30)
+	#define DHD_PM_RESUME_WAIT_FOREVER(a) 	_DHD_PM_RESUME_WAIT(a, ~0)
+	#define DHD_PM_RESUME_RETURN_ERROR(a)	do { if (dhd_mmc_suspend) return a; } while (0)
+	#define DHD_PM_RESUME_RETURN		do { if (dhd_mmc_suspend) return; } while (0)
 
-#define DHD_SPINWAIT_SLEEP_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
-#define SPINWAIT_SLEEP(a, exp, us) do { \
+	#define DHD_SPINWAIT_SLEEP_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
+	#define SPINWAIT_SLEEP(a, exp, us) do { \
 		uint countdown = (us) + 9; \
 		while ((exp) && (countdown >= 10)) { \
 			wait_event_timeout(a, FALSE, HZ/100); \
@@ -178,16 +179,16 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(wdf_device_info_t, dhd_get_wdf_device_info)
 		} \
 	} while (0)
 
-#else
+	#else
 
-#define DHD_PM_RESUME_WAIT_INIT(a)
-#define DHD_PM_RESUME_WAIT(a)
-#define DHD_PM_RESUME_WAIT_FOREVER(a)
-#define DHD_PM_RESUME_RETURN_ERROR(a)
-#define DHD_PM_RESUME_RETURN
+	#define DHD_PM_RESUME_WAIT_INIT(a)
+	#define DHD_PM_RESUME_WAIT(a)
+	#define DHD_PM_RESUME_WAIT_FOREVER(a)
+	#define DHD_PM_RESUME_RETURN_ERROR(a)
+	#define DHD_PM_RESUME_RETURN
 
-#define DHD_SPINWAIT_SLEEP_INIT(a)
-#define SPINWAIT_SLEEP(a, exp, us)  do { \
+	#define DHD_SPINWAIT_SLEEP_INIT(a)
+	#define SPINWAIT_SLEEP(a, exp, us)  do { \
 		uint countdown = (us) + 9; \
 		while ((exp) && (countdown >= 10)) { \
 			OSL_DELAY(10);  \
@@ -418,5 +419,10 @@ extern char config_path[MOD_PARAM_PATHLEN];
 #ifdef APSTA_PINGTEST
 #define MAX_GUEST 8
 #endif
+
+/* dhd_commn arp offload wrapers */
+extern void dhd_arp_cleanup(dhd_pub_t *dhd);
+int dhd_arp_get_arp_hostip_table(dhd_pub_t *dhd, void *buf, int buflen);
+void dhd_arp_offload_add_ip(dhd_pub_t *dhd, u32 ipaddr);
 
 #endif /* _dhd_h_ */
