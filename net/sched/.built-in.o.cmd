@@ -1,1 +1,0 @@
-cmd_net/sched/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o net/sched/built-in.o net/sched/sch_generic.o net/sched/sch_mq.o net/sched/sch_api.o net/sched/sch_blackhole.o net/sched/cls_api.o net/sched/sch_fifo.o net/sched/sch_htb.o net/sched/sch_sfb.o net/sched/cls_u32.o 
