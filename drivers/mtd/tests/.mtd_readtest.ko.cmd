@@ -1,0 +1,1 @@
+cmd_drivers/mtd/tests/mtd_readtest.ko := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o drivers/mtd/tests/mtd_readtest.ko drivers/mtd/tests/mtd_readtest.o drivers/mtd/tests/mtd_readtest.mod.o

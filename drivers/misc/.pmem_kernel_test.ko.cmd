@@ -1,0 +1,1 @@
+cmd_drivers/misc/pmem_kernel_test.ko := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o drivers/misc/pmem_kernel_test.ko drivers/misc/pmem_kernel_test.o drivers/misc/pmem_kernel_test.mod.o

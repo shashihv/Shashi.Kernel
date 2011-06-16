@@ -1,0 +1,1 @@
+cmd_drivers/net/wireless/bcm4325/wireless.ko := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o drivers/net/wireless/bcm4325/wireless.ko drivers/net/wireless/bcm4325/wireless.o drivers/net/wireless/bcm4325/wireless.mod.o

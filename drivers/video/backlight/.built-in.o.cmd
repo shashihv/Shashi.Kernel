@@ -1,0 +1,1 @@
+cmd_drivers/video/backlight/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o drivers/video/backlight/built-in.o drivers/video/backlight/lcd.o drivers/video/backlight/backlight.o drivers/video/backlight/generic_bl.o drivers/video/backlight/aat2870_bl.o 

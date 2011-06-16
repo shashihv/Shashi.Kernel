@@ -1,0 +1,1 @@
+cmd_drivers/video/msm/msm_mddi.o := /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o drivers/video/msm/msm_mddi.o drivers/video/msm/mddi.o drivers/video/msm/mddihost.o drivers/video/msm/mddihosti.o 
