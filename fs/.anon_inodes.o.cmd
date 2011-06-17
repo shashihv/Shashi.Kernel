@@ -38,6 +38,7 @@ deps_fs/anon_inodes.o := \
     $(wildcard include/config/debug/list.h) \
   include/linux/poison.h \
     $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/const.h \
   include/linux/prefetch.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/processor.h \
     $(wildcard include/config/mmu.h) \
@@ -246,7 +247,6 @@ deps_fs/anon_inodes.o := \
     $(wildcard include/config/dram/base.h) \
     $(wildcard include/config/zone/dma.h) \
     $(wildcard include/config/discontigmem.h) \
-  include/linux/const.h \
   arch/arm/mach-msm/include/mach/memory.h \
     $(wildcard include/config/phys/offset.h) \
     $(wildcard include/config/arch/msm/arm11.h) \

@@ -21,6 +21,7 @@ deps_net/ipv6/udplite.o := \
   include/linux/compiler-gcc4.h \
   include/linux/poison.h \
     $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/const.h \
   include/linux/prefetch.h \
   include/linux/types.h \
     $(wildcard include/config/uid16.h) \
@@ -195,7 +196,6 @@ deps_net/ipv6/udplite.o := \
     $(wildcard include/config/dram/base.h) \
     $(wildcard include/config/zone/dma.h) \
     $(wildcard include/config/discontigmem.h) \
-  include/linux/const.h \
   arch/arm/mach-msm/include/mach/memory.h \
     $(wildcard include/config/phys/offset.h) \
     $(wildcard include/config/arch/msm/arm11.h) \

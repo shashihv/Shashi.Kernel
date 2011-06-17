@@ -83,11 +83,10 @@ pgprot_t vm_get_page_prot(unsigned long vm_flags)
 }
 EXPORT_SYMBOL(vm_get_page_prot);
 
-int sysctl_overcommit_memory = OVERCOMMIT_GUESS;  /* heuristic overcommit */
-int sysctl_overcommit_ratio = 50;	/* default is 50% */
+int sysctl_overcommit_memory __read_mostly = OVERCOMMIT_GUESS;  /* heuristic overcommit */
+int sysctl_overcommit_ratio __read_mostly = 50;        /* default is 50% */
 int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;
-struct percpu_counter vm_committed_as;
-
+struct percpu_counter vm_committed_as ____cacheline_aligned_in_smp;
 /*
  * Check that a process has enough memory to allocate a new virtual
  * mapping. 0 means there is enough memory for the allocation to
@@ -582,7 +581,7 @@ again:			remove_next = 1 + (end > next->vm_end);
 	 * When changing only vma->vm_end, we don't really need
 	 * anon_vma lock.
 	 */
-	if (vma->anon_vma && (insert || importer || start != vma->vm_start))
+	if (vma->anon_vma && (importer || start != vma->vm_start))
 		anon_vma = vma->anon_vma;
 	if (anon_vma) {
 		spin_lock(&anon_vma->lock);

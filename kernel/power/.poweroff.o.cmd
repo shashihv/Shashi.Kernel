@@ -103,6 +103,7 @@ deps_kernel/power/poweroff.o := \
     $(wildcard include/config/debug/list.h) \
   include/linux/poison.h \
     $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/const.h \
   include/linux/prefetch.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/processor.h \
     $(wildcard include/config/mmu.h) \

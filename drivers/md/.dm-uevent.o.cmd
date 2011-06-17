@@ -16,6 +16,7 @@ deps_drivers/md/dm-uevent.o := \
   include/linux/compiler-gcc4.h \
   include/linux/poison.h \
     $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/const.h \
   include/linux/prefetch.h \
   include/linux/types.h \
     $(wildcard include/config/uid16.h) \
@@ -207,7 +208,6 @@ deps_drivers/md/dm-uevent.o := \
     $(wildcard include/config/thumb2/kernel.h) \
     $(wildcard include/config/dram/size.h) \
     $(wildcard include/config/dram/base.h) \
-  include/linux/const.h \
   arch/arm/mach-msm/include/mach/memory.h \
     $(wildcard include/config/phys/offset.h) \
     $(wildcard include/config/arch/msm/arm11.h) \

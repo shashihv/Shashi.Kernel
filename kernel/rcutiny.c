@@ -54,6 +54,9 @@ static struct rcu_ctrlblk rcu_bh_ctrlblk = {
 	.curtail	= &rcu_bh_ctrlblk.rcucblist,
 };
 
+static unsigned long have_rcu_kthread_work;
+static DECLARE_WAIT_QUEUE_HEAD(rcu_kthread_wq);
+
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 int rcu_scheduler_active __read_mostly;
 EXPORT_SYMBOL_GPL(rcu_scheduler_active);
@@ -100,18 +103,19 @@ void rcu_exit_nohz(void)
  */
 static int rcu_qsctr_help(struct rcu_ctrlblk *rcp)
 {
-	unsigned long flags;
-
-	local_irq_save(flags);
 	if (rcp->rcucblist != NULL &&
 	    rcp->donetail != rcp->curtail) {
 		rcp->donetail = rcp->curtail;
-		local_irq_restore(flags);
 		return 1;
 	}
-	local_irq_restore(flags);
 
 	return 0;
+}
+
+static void invoke_rcu_kthread(void)
+{
+       have_rcu_kthread_work = 1;
+       wake_up(&rcu_kthread_wq);
 }
 
 /*
@@ -121,9 +125,12 @@ static int rcu_qsctr_help(struct rcu_ctrlblk *rcp)
  */
 void rcu_sched_qs(int cpu)
 {
-	if (rcu_qsctr_help(&rcu_sched_ctrlblk) +
-	    rcu_qsctr_help(&rcu_bh_ctrlblk))
-		raise_softirq(RCU_SOFTIRQ);
+	unsigned long flags;
+
+	local_irq_save(flags);
+	if (rcu_qsctr_help(&rcu_sched_ctrlblk) + rcu_qsctr_help(&rcu_bh_ctrlblk))
+	  invoke_rcu_kthread();
+	local_irq_restore(flags);
 }
 
 /*
@@ -131,8 +138,12 @@ void rcu_sched_qs(int cpu)
  */
 void rcu_bh_qs(int cpu)
 {
+	unsigned long flags;
+
+	local_irq_save(flags);
 	if (rcu_qsctr_help(&rcu_bh_ctrlblk))
-		raise_softirq(RCU_SOFTIRQ);
+	  invoke_rcu_kthread();
+	local_irq_restore(flags);
 }
 
 /*

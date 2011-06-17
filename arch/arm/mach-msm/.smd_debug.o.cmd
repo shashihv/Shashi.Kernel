@@ -43,6 +43,7 @@ deps_arch/arm/mach-msm/smd_debug.o := \
   include/linux/stddef.h \
   include/linux/poison.h \
     $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/const.h \
   include/linux/prefetch.h \
   include/linux/types.h \
     $(wildcard include/config/uid16.h) \

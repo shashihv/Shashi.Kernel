@@ -85,6 +85,7 @@ deps_fs/locks.o := \
     $(wildcard include/config/debug/list.h) \
   include/linux/poison.h \
     $(wildcard include/config/illegal/pointer/value.h) \
+  include/linux/const.h \
   include/linux/prefetch.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/processor.h \
   /home/francisco/Desktop/franco.Kernel/arch/arm/include/asm/cache.h \
@@ -287,7 +288,6 @@ deps_fs/locks.o := \
     $(wildcard include/config/thumb2/kernel.h) \
     $(wildcard include/config/dram/size.h) \
     $(wildcard include/config/dram/base.h) \
-  include/linux/const.h \
   arch/arm/mach-msm/include/mach/memory.h \
     $(wildcard include/config/phys/offset.h) \
     $(wildcard include/config/arch/msm/arm11.h) \
