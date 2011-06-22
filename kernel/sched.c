@@ -1185,16 +1185,6 @@ static void resched_task(struct task_struct *p)
 		smp_send_reschedule(cpu);
 }
 
-int nohz_ratelimit(int cpu)
-{
-  struct rq *rq = cpu_rq(cpu);
-  u64 diff = rq->clock - rq->nohz_stamp;
-
-  rq->nohz_stamp = rq->clock;
-
-  return diff < (NSEC_PER_SEC / HZ) >> 1;
-}
-
 static void resched_cpu(int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
@@ -2323,6 +2313,8 @@ unsigned long wait_task_inactive(struct task_struct *p, long match_state)
 		 * yield - it could be a while.
 		 */
 		if (unlikely(on_rq)) {
+			ktime_t to = ktime_set(0, NSEC_PER_SEC/HZ);
+      			set_current_state(TASK_UNINTERRUPTIBLE);
 			schedule_timeout_uninterruptible(1);
 			continue;
 		}

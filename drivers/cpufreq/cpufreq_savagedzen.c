@@ -90,7 +90,7 @@ static unsigned long down_rate_us;
  * When ramping up frequency with no idle cycles jump to at least this frequency.
  * Zero disables. Set a very high value to jump to policy max freqeuncy.
  */
-#define DEFAULT_UP_MIN_FREQ 1000000
+#define DEFAULT_UP_MIN_FREQ 245760
 static unsigned int up_min_freq;
 
 /*
@@ -99,14 +99,14 @@ static unsigned int up_min_freq;
  * to minimize wakeup issues.
  * Set sleep_max_freq=0 to disable this behavior.
  */
-#define DEFAULT_SLEEP_MAX_FREQ 400000
+#define DEFAULT_SLEEP_MAX_FREQ 245760
 static unsigned int sleep_max_freq;
 
 /*
  * The frequency to set when waking up from sleep.
  * When sleep_max_freq=0 this will have no effect.
  */
-#define DEFAULT_SLEEP_WAKEUP_FREQ 1000000
+#define DEFAULT_SLEEP_WAKEUP_FREQ 864000
 static unsigned int sleep_wakeup_freq;
 
 /*
@@ -114,7 +114,7 @@ static unsigned int sleep_wakeup_freq;
  * go below this frequency.
  * Set awake_min_freq=0 to disable this behavior.
  */
-#define DEFAULT_AWAKE_MIN_FREQ 600000
+#define DEFAULT_AWAKE_MIN_FREQ 864000
 static unsigned int awake_min_freq;
 
 /*
@@ -127,7 +127,7 @@ static unsigned int sample_rate_jiffies;
  * Freqeuncy delta when ramping up.
  * zero disables and causes to always jump straight to max frequency.
  */
-#define DEFAULT_RAMP_UP_STEP 200000
+#define DEFAULT_RAMP_UP_STEP 0
 static unsigned int ramp_up_step;
 
 /*
@@ -140,13 +140,13 @@ static unsigned int ramp_down_step;
 /*
  * CPU freq will be increased if measured load > max_cpu_load;
  */
-#define DEFAULT_MAX_CPU_LOAD 80
+#define DEFAULT_MAX_CPU_LOAD 60
 static unsigned long max_cpu_load;
 
 /*
  * CPU freq will be decreased if measured load < min_cpu_load;
  */
-#define DEFAULT_MIN_CPU_LOAD 45
+#define DEFAULT_MIN_CPU_LOAD 30
 static unsigned long min_cpu_load;
 
 
@@ -159,7 +159,7 @@ static
 struct cpufreq_governor cpufreq_gov_savagedzen = {
         .name = "SavagedZen",
         .governor = cpufreq_governor_savagedzen,
-        .max_transition_latency = 9000000,
+        .max_transition_latency = 6000000,
         .owner = THIS_MODULE,
 };
 

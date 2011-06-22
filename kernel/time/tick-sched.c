@@ -285,7 +285,7 @@ void tick_nohz_stop_sched_tick(int inidle)
       	    arch_needs_cpu(cpu)) {
 #else
 	if (rcu_needs_cpu(cpu) || printk_needs_cpu(cpu) ||
-	    arch_needs_cpu(cpu) || nohz_ratelimit(cpu)) {
+	    arch_needs_cpu(cpu) {
 #endif
 		next_jiffies = last_jiffies + 1;
 		delta_jiffies = 1;

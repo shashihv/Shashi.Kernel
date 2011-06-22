@@ -554,10 +554,10 @@ static void __init free_unused_memmap_node(int node, struct meminfo *mi)
 
 		bank_start = bank_pfn_start(bank);
 		if (bank_start < prev_bank_end) {
-			printk(KERN_ERR "MEM: unordered memory banks.  "
-				"Not freeing memmap.\n");
-			break;
-		}
+      			printk(KERN_ERR "MEM: unordered memory banks.  "
+        		"Not freeing memmap.\n");
+      			break;
+    		}
 
 		/*
 		 * If we had a previous bank, and there is a space

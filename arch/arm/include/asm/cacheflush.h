@@ -134,6 +134,8 @@
 #error Unknown cache maintainence model
 #endif
 
+#define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
+
 /*
  * This flag is used to indicate that the page pointed to by a pte
  * is dirty and requires cleaning before returning it to the user.

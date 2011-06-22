@@ -533,7 +533,7 @@ void mdp_pipe_ctrl(MDP_BLOCK_TYPE block, MDP_BLOCK_POWER_STATE state,
 			if (block == MDP_MASTER_BLOCK) {
 				mdp_current_clk_on = FALSE;
 				dsb();
-
+				
 				/* turn off MDP clks */
 				if (mdp_clk != NULL) {
 					clk_disable(mdp_clk);

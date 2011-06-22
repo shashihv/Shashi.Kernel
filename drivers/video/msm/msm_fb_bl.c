@@ -27,6 +27,10 @@
 
 #include "msm_fb.h"
 
+#ifdef CONFIG_HAS_EARLYSUSPEND
+#undef CONFIG_HAS_EARLYSUSPEND
+#endif
+
 static int msm_fb_bl_get_brightness(struct backlight_device *pbd)
 {
 	return pbd->props.brightness;

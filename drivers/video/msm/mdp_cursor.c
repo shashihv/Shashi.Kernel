@@ -37,6 +37,10 @@
 #include "mdp.h"
 #include "msm_fb.h"
 
+#ifdef CONFIG_HAS_EARLYSUSPEND
+#undef CONFIG_HAS_EARLYSUSPEND
+#endif
+
 static int cursor_enabled;
 
 int mdp_hw_cursor_update(struct fb_info *info, struct fb_cursor *cursor)

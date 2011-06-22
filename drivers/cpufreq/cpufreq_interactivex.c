@@ -56,11 +56,11 @@ static unsigned int enabled = 0;
  * The minimum ammount of time to spend at a frequency before we can ramp down,
  * default is 50ms.
  */
-#define DEFAULT_MIN_SAMPLE_TIME 50000;
+#define DEFAULT_MIN_SAMPLE_TIME 45000;
 static unsigned long min_sample_time;
 
-#define FREQ_THRESHOLD 998400;
-#define RESUME_SPEED 998400;
+#define FREQ_THRESHOLD 864000;
+#define RESUME_SPEED 864000;
 
 static int cpufreq_governor_interactivex(struct cpufreq_policy *policy,
 		unsigned int event);
@@ -74,7 +74,7 @@ struct cpufreq_governor cpufreq_gov_interactivex = {
 #if defined(CONFIG_ARCH_MSM_SCORPION)
 	.max_transition_latency = 8000000,
 #else
-	.max_transition_latency = 10000000,
+	.max_transition_latency = 6000000,
 #endif
 	.owner = THIS_MODULE,
 };

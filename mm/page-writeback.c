@@ -888,7 +888,7 @@ retry:
 				break;
 			}
 
-			done_index = page->index + 1;
+			done_index = page->index;
 
 			lock_page(page);
 
@@ -937,32 +937,11 @@ continue_unlock:
 					 * not be suitable for data integrity
 					 * writeout).
 					 */
+					done_index = page->index + 1;
 					done = 1;
 					break;
 				}
  			}
-			/*
-			if (nr_to_write > 0) {
-				nr_to_write--;
-				if (nr_to_write == 0 &&
-				    wbc->sync_mode == WB_SYNC_NONE) {
-			*/
-					/*
-					 * We stop writing back only if we are
-					 * not doing integrity sync. In case of
-					 * integrity sync we have to keep going
-					 * because someone may be concurrently
-					 * dirtying pages, and we might have
-					 * synced a lot of newly appeared dirty
-					 * pages, but have not synced all of the
-					 * old dirty pages.
-					 */
-			/*
-					done = 1;
-					break;
-				}
-			}
-			*/
 
       /*
        * We stop writing back only if we are not doing

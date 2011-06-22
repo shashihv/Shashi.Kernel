@@ -40,6 +40,10 @@
 #include "msm_fb.h"
 #include "mddihost.h"
 
+#ifdef CONFIG_HAS_EARLYSUSPEND
+#undef CONFIG_HAS_EARLYSUSPEND
+#endif
+
 #ifdef CONFIG_FB_MSM_MDP40
 #include "mdp4.h"
 

@@ -59,15 +59,19 @@ static int do_blktrans_request(struct mtd_blktrans_ops *tr,
 		for (; nsect > 0; nsect--, block++, buf += tr->blksize)
 			if (tr->readsect(dev, block, buf))
 				return -EIO;
+	
+		rq_flush_dcache_pages(req);
 		return 0;
 
 	case WRITE:
 		if (!tr->writesect)
 			return -EIO;
 
+		rq_flush_dcache_pages(req);
 		for (; nsect > 0; nsect--, block++, buf += tr->blksize)
 			if (tr->writesect(dev, block, buf))
 				return -EIO;
+
 		return 0;
 
 	default:

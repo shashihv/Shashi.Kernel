@@ -58,10 +58,10 @@ static cpumask_t down_cpumask;
 /*
  * The minimum amount of time to spend at a frequency before we can ramp down.
  */
-#define DEFAULT_MIN_SAMPLE_TIME 80000;
+#define DEFAULT_MIN_SAMPLE_TIME 45000;
 static unsigned long min_sample_time;
 
-#define LOAD_SCALE_MAX 85
+#define LOAD_SCALE_MAX 60
 
 #define DEBUG 0
 #define BUFSZ 128
@@ -159,7 +159,7 @@ static
 struct cpufreq_governor cpufreq_gov_interactive = {
 	.name = "interactive",
 	.governor = cpufreq_governor_interactive,
-	.max_transition_latency = 10000000,
+	.max_transition_latency = 6000000,
 	.owner = THIS_MODULE,
 };
 
