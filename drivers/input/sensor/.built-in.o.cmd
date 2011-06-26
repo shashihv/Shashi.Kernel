@@ -1,1 +1,0 @@
-cmd_drivers/input/sensor/built-in.o :=  /home/francisco/Desktop/arm-2009q1/bin/arm-none-linux-gnueabi-ld -EL    -r -o drivers/input/sensor/built-in.o drivers/input/sensor/gp2ap002.o drivers/input/sensor/kr3dm.o drivers/input/sensor/kr3dh.o drivers/input/sensor/ami304.o 
