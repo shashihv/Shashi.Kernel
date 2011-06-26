@@ -207,12 +207,12 @@ static int adsp_rpc_init(struct msm_adsp_module *adsp_module)
 	adsp_module->rpc_client = msm_rpc_connect(
 		rpc_adsp_rtos_atom_prog,
 		rpc_adsp_rtos_atom_vers,
-		MSM_RPC_UNINTERRUPTIBLE);
+		MSM_RPC_UNINTERRUPTIBLE | MSM_RPC_ENABLE_RECEIVE);
 	if (IS_ERR(adsp_module->rpc_client))
 		adsp_module->rpc_client = msm_rpc_connect_compatible(
 		rpc_adsp_rtos_atom_prog,
 		rpc_adsp_rtos_atom_vers_comp,
-		MSM_RPC_UNINTERRUPTIBLE);
+		MSM_RPC_UNINTERRUPTIBLE | MSM_RPC_ENABLE_RECEIVE);
 
 	if (IS_ERR(adsp_module->rpc_client)) {
 		int rc = PTR_ERR(adsp_module->rpc_client);

@@ -588,12 +588,12 @@ static int swap_entry_free(struct swap_info_struct *p,
 			swap_list.next = p - swap_info;
 		nr_swap_pages++;
 		p->inuse_pages--;
-		if (disk->fops->swap_slot_free_notify)
-        	  disk->fops->swap_slot_free_notify(p->bdev,offset);
+		if ((p->flags & SWP_BLKDEV) &&
+			disk->fops->swap_slot_free_notify)
+			disk->fops->swap_slot_free_notify(p->bdev, offset);
 	}
 	if (!swap_count(count))
 		mem_cgroup_uncharge_swap(ent);
-		
 	return count;
 }
 
@@ -1850,6 +1850,7 @@ SYSCALL_DEFINE2(swapon, const char __user *, specialfile, int, swap_flags)
 		if (error < 0)
 			goto bad_swap;
 		p->bdev = bdev;
+		p->flags |= SWP_BLKDEV;
 	} else if (S_ISREG(inode->i_mode)) {
 		p->bdev = inode->i_sb->s_bdev;
 		mutex_lock(&inode->i_mutex);

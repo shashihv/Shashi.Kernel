@@ -114,7 +114,6 @@ struct rcu_data {
  * how many quiescent states passed, just if there was at least
  * one since the start of the grace period. Thus just a flag.
  */
-extern void synchronize_rcu(void);
 extern void synchronize_sched(void);
 extern void synchronize_rcu_bh(void);
 extern void rcu_sched_qs(int cpu);

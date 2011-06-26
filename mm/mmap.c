@@ -83,10 +83,11 @@ pgprot_t vm_get_page_prot(unsigned long vm_flags)
 }
 EXPORT_SYMBOL(vm_get_page_prot);
 
-int sysctl_overcommit_memory __read_mostly = OVERCOMMIT_GUESS;  /* heuristic overcommit */
-int sysctl_overcommit_ratio __read_mostly = 50;        /* default is 50% */
+int sysctl_overcommit_memory = __read_mostly OVERCOMMIT_GUESS;  /* heuristic overcommit */
+int sysctl_overcommit_ratio = __read_mostly 50;  /* default is 50% */
 int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;
 struct percpu_counter vm_committed_as ____cacheline_aligned_in_smp;
+
 /*
  * Check that a process has enough memory to allocate a new virtual
  * mapping. 0 means there is enough memory for the allocation to
@@ -578,79 +579,79 @@ again:			remove_next = 1 + (end > next->vm_end);
 	}
 
 	/*
-	 * When changing only vma->vm_end, we don't really need
-	 * anon_vma lock.
-	 */
-	if (vma->anon_vma && (insert || importer || start != vma->vm_start))
-		anon_vma = vma->anon_vma;
-	if (anon_vma) {
-		spin_lock(&anon_vma->lock);
-		/*
-		 * Easily overlooked: when mprotect shifts the boundary,
-		 * make sure the expanding vma has anon_vma set if the
-		 * shrinking vma had, to cover any anon pages imported.
-		 */
-		if (importer && !importer->anon_vma) {
-			importer->anon_vma = anon_vma;
-			__anon_vma_link(importer);
-		}
-	}
+* When changing only vma->vm_end, we don't really need
+* anon_vma lock.
+*/
+if (vma->anon_vma && (insert || importer || start != vma->vm_start))
+anon_vma = vma->anon_vma;
+if (anon_vma) {
+spin_lock(&anon_vma->lock);
+/*
+* Easily overlooked: when mprotect shifts the boundary,
+* make sure the expanding vma has anon_vma set if the
+* shrinking vma had, to cover any anon pages imported.
+*/
+if (importer && !importer->anon_vma) {
+importer->anon_vma = anon_vma;
+__anon_vma_link(importer);
+}
+}
 
-	if (root) {
-		flush_dcache_mmap_lock(mapping);
-		vma_prio_tree_remove(vma, root);
-		if (adjust_next)
-			vma_prio_tree_remove(next, root);
-	}
+if (root) {
+flush_dcache_mmap_lock(mapping);
+vma_prio_tree_remove(vma, root);
+if (adjust_next)
+vma_prio_tree_remove(next, root);
+}
 
-	vma->vm_start = start;
-	vma->vm_end = end;
-	vma->vm_pgoff = pgoff;
-	if (adjust_next) {
-		next->vm_start += adjust_next << PAGE_SHIFT;
-		next->vm_pgoff += adjust_next;
-	}
+vma->vm_start = start;
+vma->vm_end = end;
+vma->vm_pgoff = pgoff;
+if (adjust_next) {
+next->vm_start += adjust_next << PAGE_SHIFT;
+next->vm_pgoff += adjust_next;
+}
 
-	if (root) {
-		if (adjust_next)
-			vma_prio_tree_insert(next, root);
-		vma_prio_tree_insert(vma, root);
-		flush_dcache_mmap_unlock(mapping);
-	}
+if (root) {
+if (adjust_next)
+vma_prio_tree_insert(next, root);
+vma_prio_tree_insert(vma, root);
+flush_dcache_mmap_unlock(mapping);
+}
 
-	if (remove_next) {
-		/*
-		 * vma_merge has merged next into vma, and needs
-		 * us to remove next before dropping the locks.
-		 */
-		__vma_unlink(mm, next, vma);
-		if (file)
-			__remove_shared_vm_struct(next, file, mapping);
-		if (next->anon_vma)
-			__anon_vma_merge(vma, next);
-	} else if (insert) {
-		/*
-		 * split_vma has split insert from vma, and needs
-		 * us to insert it before dropping the locks
-		 * (it may either follow vma or precede it).
-		 */
-		__insert_vm_struct(mm, insert);
-	}
+if (remove_next) {
+/*
+* vma_merge has merged next into vma, and needs
+* us to remove next before dropping the locks.
+*/
+__vma_unlink(mm, next, vma);
+if (file)
+__remove_shared_vm_struct(next, file, mapping);
+if (next->anon_vma)
+__anon_vma_merge(vma, next);
+} else if (insert) {
+/*
+* split_vma has split insert from vma, and needs
+* us to insert it before dropping the locks
+* (it may either follow vma or precede it).
+*/
+__insert_vm_struct(mm, insert);
+}
 
-	if (anon_vma)
-		spin_unlock(&anon_vma->lock);
-	if (mapping)
-		spin_unlock(&mapping->i_mmap_lock);
+if (anon_vma)
+spin_unlock(&anon_vma->lock);
+if (mapping)
+spin_unlock(&mapping->i_mmap_lock);
 
-	if (remove_next) {
-		if (file) {
-			fput(file);
-			if (next->vm_flags & VM_EXECUTABLE)
-				removed_exe_file_vma(mm);
-		}
-		mm->map_count--;
-		mpol_put(vma_policy(next));
-		kmem_cache_free(vm_area_cachep, next);
+if (remove_next) {
+if (file) {
+fput(file);
+if (next->vm_flags & VM_EXECUTABLE)
+removed_exe_file_vma(mm);
+}
+mm->map_count--;
+mpol_put(vma_policy(next));
+kmem_cache_free(vm_area_cachep, next);
 		/*
 		 * In mprotect's case 6 (see comments on vma_merge),
 		 * we must remove another next too. It would clutter

@@ -469,6 +469,7 @@ static int lge_bind_config(void)
 		if (ret) {
 			/* If cable is factory cable */
 			product_id = LGE_FACTORY_USB_PID;
+			device_desc.idProduct = __constant_cpu_to_le16(product_id);
 		}
 	}
 
@@ -553,7 +554,6 @@ static int  android_bind(struct usb_composite_dev *cdev)
 	device_desc.iSerialNumber = id;
 
 	device_desc.idProduct = __constant_cpu_to_le16(product_id);
-	cdev->desc.idVendor = device_desc.idVendor;
 	/* Supporting remote wakeup for mass storage only function
 	 * does n't make sense, since there are no notifications that
 	 * can be sent from mass storage during suspend */

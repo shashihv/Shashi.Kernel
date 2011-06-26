@@ -1721,7 +1721,9 @@ static int do_signal_stop(int signr)
 	}
 
 	/* Now we don't run again until woken by SIGCONT or SIGKILL */
-	schedule();
+	do {
+		schedule();
+	} while (try_to_freeze());
 
 	tracehook_finish_jctl();
 	current->exit_code = 0;
@@ -1791,13 +1793,8 @@ relock:
 	 * the CLD_ si_code into SIGNAL_CLD_MASK bits.
 	 */
 	if (unlikely(signal->flags & SIGNAL_CLD_MASK)) {
-		int why;
-    
-    		if (signal->flags & SIGNAL_CLD_CONTINUED)
-      		  why = CLD_CONTINUED;
-    		else
-      		  why = CLD_STOPPED;		
-
+		int why = (signal->flags & SIGNAL_STOP_CONTINUED)
+				? CLD_CONTINUED : CLD_STOPPED;
 		signal->flags &= ~SIGNAL_CLD_MASK;
 
 		why = tracehook_notify_jctl(why, CLD_CONTINUED);
@@ -2651,10 +2648,8 @@ SYSCALL_DEFINE2(signal, int, sig, __sighandler_t, handler)
 
 SYSCALL_DEFINE0(pause)
 {
-	while (!signal_pending(current)) {
-    	  current->state = TASK_INTERRUPTIBLE;
-    	  schedule();
-  	}
+	current->state = TASK_INTERRUPTIBLE;
+	schedule();
 	return -ERESTARTNOHAND;
 }
 

@@ -834,6 +834,7 @@ wl_event_to_host_order(wl_event_msg_t * evt)
 	evt->version = ntoh16(evt->version);
 }
 
+
 void dhd_arp_cleanup(dhd_pub_t *dhd)
 {
 #ifdef ARP_OFFLOAD_SUPPORT
@@ -908,7 +909,6 @@ int dhd_arp_get_arp_hostip_table(dhd_pub_t *dhd, void *buf, int buflen)
 #endif /* ARP_OFFLOAD_SUPPORT */
        return 0;
 }
-
 
 /* send up locally generated event */
 void

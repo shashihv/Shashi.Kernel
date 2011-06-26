@@ -168,8 +168,15 @@ int __read_mostly timekeeping_suspended;
 static struct timespec xtime_cache __attribute__ ((aligned (16)));
 void update_xtime_cache(u64 nsec)
 {
-	xtime_cache = xtime;
-  	timespec_add_ns(&xtime_cache, nsec);
+	/*
+	 * Use temporary variable so get_seconds() cannot catch
+	 * an intermediate xtime_cache.tv_sec value.
+	 * The ACCESS_ONCE() keeps the compiler from optimizing
+	 * out the intermediate value.
+	 */
+	struct timespec ts = xtime;
+	timespec_add_ns(&ts, nsec);
+	ACCESS_ONCE(xtime_cache) = ts;
 }
 
 /* must hold xtime_lock */
@@ -589,9 +596,9 @@ static int timekeeping_resume(struct sys_device *dev)
 
 	if (timespec_compare(&ts, &timekeeping_suspend_time) > 0) {
 		ts = timespec_sub(ts, timekeeping_suspend_time);
-		xtime = timespec_add_safe(xtime, ts);
+		xtime = timespec_add(xtime, ts);
 		wall_to_monotonic = timespec_sub(wall_to_monotonic, ts);
-		total_sleep_time = timespec_add_safe(total_sleep_time, ts);
+		total_sleep_time = timespec_add(total_sleep_time, ts);
 	}
 	update_xtime_cache(0);
 	/* re-base the last cycle value */
@@ -848,60 +855,12 @@ void getboottime(struct timespec *ts)
 EXPORT_SYMBOL_GPL(getboottime);
 
 /**
- * get_monotonic_boottime - Returns monotonic time since boot
- * @ts:    pointer to the timespec to be set
- *
- * Returns the monotonic time since boot in a timespec.
- *
- * This is similar to CLOCK_MONTONIC/ktime_get_ts, but also
- * includes the time spent in suspend.
- */
-void get_monotonic_boottime(struct timespec *ts)
-{
-  struct timespec tomono, sleep;
-  unsigned int seq;
-  s64 nsecs;
-
-  WARN_ON(timekeeping_suspended);
-
-  do {
-    seq = read_seqbegin(&xtime_lock);
-    *ts = xtime;
-    tomono = wall_to_monotonic;
-    sleep = total_sleep_time;
-    nsecs = timekeeping_get_ns();
-
-  } while (read_seqretry(&xtime_lock, seq));
-
-  set_normalized_timespec(ts, ts->tv_sec + tomono.tv_sec + sleep.tv_sec,
-      ts->tv_nsec + tomono.tv_nsec + sleep.tv_nsec + nsecs);
-}
-EXPORT_SYMBOL_GPL(get_monotonic_boottime);
-
-/**
- * ktime_get_boottime - Returns monotonic time since boot in a ktime
- *
- * Returns the monotonic time since boot in a ktime
- *
- * This is similar to CLOCK_MONTONIC/ktime_get, but also
- * includes the time spent in suspend.
- */
-ktime_t ktime_get_boottime(void)
-{
-  struct timespec ts;
-
-  get_monotonic_boottime(&ts);
-  return timespec_to_ktime(ts);
-}
-EXPORT_SYMBOL_GPL(ktime_get_boottime);
-
-/**
  * monotonic_to_bootbased - Convert the monotonic time to boot based.
  * @ts:		pointer to the timespec to be converted
  */
 void monotonic_to_bootbased(struct timespec *ts)
 {
-	*ts = timespec_add_safe(*ts, total_sleep_time);
+	*ts = timespec_add(*ts, total_sleep_time);
 }
 EXPORT_SYMBOL_GPL(monotonic_to_bootbased);
 
@@ -946,17 +905,4 @@ struct timespec get_monotonic_coarse(void)
 	set_normalized_timespec(&now, now.tv_sec + mono.tv_sec,
 				now.tv_nsec + mono.tv_nsec);
 	return now;
-}
-
-void get_xtime_and_monotonic_and_sleep_offset(struct timespec *xtim,
-        struct timespec *wtom, struct timespec *sleep)
-{
-  unsigned long seq;
-  
-  do {
-    seq = read_seqbegin(&xtime_lock);
-    *xtim = xtime;
-    *wtom = wall_to_monotonic;
-    *sleep = total_sleep_time;
-  } while (read_seqretry(&xtime_lock, seq));
 }

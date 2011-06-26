@@ -127,7 +127,7 @@ extern int LG_ErrorHandler_enable ;
 
 static inline int rt_policy(int policy)
 {
-	if (policy == SCHED_FIFO || policy == SCHED_RR)
+	if (unlikely(policy == SCHED_FIFO || policy == SCHED_RR))
 		return 1;
 	return 0;
 }
@@ -318,7 +318,7 @@ static inline struct task_group *task_group(struct task_struct *p)
 
 #ifdef CONFIG_CGROUP_SCHED
 	tg = container_of(task_subsys_state(p, cpu_cgroup_subsys_id),
-	struct task_group, css);
+				struct task_group, css);
 #else
 	tg = &init_task_group;
 #endif
@@ -613,6 +613,11 @@ static inline int cpu_of(struct rq *rq)
 #endif
 }
 
+#define rcu_dereference_check_sched_domain(p) \
+	rcu_dereference_check((p), \
+			      rcu_read_lock_sched_held() || \
+			      lockdep_is_held(&sched_domains_mutex))
+
 /*
  * The domain tree (rq->sd) is protected by RCU's quiescent state transition.
  * See detach_destroy_domains: synchronize_sched for details.
@@ -621,7 +626,7 @@ static inline int cpu_of(struct rq *rq)
  * preempt-disabled sections.
  */
 #define for_each_domain(cpu, __sd) \
-	for (__sd = rcu_dereference(cpu_rq(cpu)->sd); __sd; __sd = __sd->parent)
+	for (__sd = rcu_dereference_check_sched_domain(cpu_rq(cpu)->sd); __sd; __sd = __sd->parent)
 
 #define cpu_rq(cpu)		(&per_cpu(runqueues, (cpu)))
 #define this_rq()		(&__get_cpu_var(runqueues))
@@ -1236,6 +1241,17 @@ void wake_up_idle_cpu(int cpu)
 	if (!tsk_is_polling(rq->idle))
 		smp_send_reschedule(cpu);
 }
+
+int nohz_ratelimit(int cpu)
+{
+	struct rq *rq = cpu_rq(cpu);
+	u64 diff = rq->clock - rq->nohz_stamp;
+
+	rq->nohz_stamp = rq->clock;
+
+	return diff < (NSEC_PER_SEC / HZ) >> 1;
+}
+
 #endif /* CONFIG_NO_HZ */
 
 static u64 sched_avg_period(void)
@@ -1303,15 +1319,15 @@ calc_delta_mine(unsigned long delta_exec, unsigned long weight,
 {
 	u64 tmp;
 
+	tmp = (u64)delta_exec * weight;
+
 	if (!lw->inv_weight) {
 		if (BITS_PER_LONG > 32 && unlikely(lw->weight >= WMULT_CONST))
 			lw->inv_weight = 1;
 		else
-			lw->inv_weight = 1 + (WMULT_CONST-lw->weight/2)
-				/ (lw->weight+1);
+			lw->inv_weight = WMULT_CONST / lw->weight;
 	}
 
-	tmp = (u64)delta_exec * weight;
 	/*
 	 * Check whether we'd overflow the 64-bit multiplication:
 	 */
@@ -2101,7 +2117,7 @@ task_hot(struct task_struct *p, u64 now, struct sched_domain *sd)
 	if (p->sched_class != &fair_sched_class)
 		return 0;
 
-	if (p->policy == SCHED_IDLE)
+	if (unlikely(p->policy == SCHED_IDLE))
 		return 0;
 
 	/*
@@ -2589,7 +2605,7 @@ out_running:
 	if (p->sched_class->task_woken)
 		p->sched_class->task_woken(rq, p);
 
-	if (rq->idle_stamp) {
+	if (unlikely(rq->idle_stamp)) {
 		u64 delta = rq->clock - rq->idle_stamp;
 		u64 max = 2*sysctl_sched_migration_cost;
 
@@ -5089,7 +5105,7 @@ static void run_rebalance_domains(struct softirq_action *h)
 
 static inline int on_null_domain(int cpu)
 {
-	return !rcu_dereference(cpu_rq(cpu)->sd);
+	return !rcu_dereference_sched(cpu_rq(cpu)->sd);
 }
 
 /*
@@ -9425,11 +9441,13 @@ static ssize_t sched_power_savings_store(const char *buf, size_t count, int smt)
 
 #ifdef CONFIG_SCHED_MC
 static ssize_t sched_mc_power_savings_show(struct sysdev_class *class,
+					   struct sysdev_class_attribute *attr,
 					   char *page)
 {
 	return sprintf(page, "%u\n", sched_mc_power_savings);
 }
 static ssize_t sched_mc_power_savings_store(struct sysdev_class *class,
+					    struct sysdev_class_attribute *attr,
 					    const char *buf, size_t count)
 {
 	return sched_power_savings_store(buf, count, 0);
@@ -9441,11 +9459,13 @@ static SYSDEV_CLASS_ATTR(sched_mc_power_savings, 0644,
 
 #ifdef CONFIG_SCHED_SMT
 static ssize_t sched_smt_power_savings_show(struct sysdev_class *dev,
+					    struct sysdev_class_attribute *attr,
 					    char *page)
 {
 	return sprintf(page, "%u\n", sched_smt_power_savings);
 }
 static ssize_t sched_smt_power_savings_store(struct sysdev_class *dev,
+					     struct sysdev_class_attribute *attr,
 					     const char *buf, size_t count)
 {
 	return sched_power_savings_store(buf, count, 1);
@@ -9795,8 +9815,8 @@ void __init sched_init(void)
 				&per_cpu(init_rt_rq, i),
 				&per_cpu(init_sched_rt_entity, i), i, 1,
 				root_task_group.rt_se[i]);
-#endif /* CONFIG_USER_SCHED */
-#endif /* CONFIG_GROUP_SCHED */
+#endif
+#endif
 
 		for (j = 0; j < CPU_LOAD_IDX_MAX; j++)
 			rq->cpu_load[j] = 0;
@@ -9875,7 +9895,7 @@ void __init sched_init(void)
 #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
 static inline int preempt_count_equals(int preempt_offset)
 {
-	int nested = (preempt_count() & ~PREEMPT_ACTIVE) + rcu_preempt_depth();
+	int nested = preempt_count() & ~PREEMPT_ACTIVE;
 
 	return (nested == PREEMPT_INATOMIC_BASE + preempt_offset);
 }
@@ -10279,8 +10299,8 @@ void sched_move_task(struct task_struct *tsk)
 {
 	int on_rq, running;
 	unsigned long flags;
-    	struct rq *rq;
-    	
+	struct rq *rq;
+
 	rq = task_rq_lock(tsk, &flags);
 
 	update_rq_clock(rq);
@@ -11232,6 +11252,5 @@ void synchronize_sched_expedited(void)
 }
 EXPORT_SYMBOL_GPL(synchronize_sched_expedited);
 
-EXPORT_SYMBOL_GPL(nr_running);
 #endif /* #else #ifndef CONFIG_SMP */
 #endif /* CONFIG_SCHED_BFS */

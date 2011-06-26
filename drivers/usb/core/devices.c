@@ -514,7 +514,7 @@ static ssize_t usb_device_dump(char __user **buffer, size_t *nbytes,
 	case USB_SPEED_HIGH:
 		speed = "480"; break;
 	case USB_SPEED_SUPER:
-    		speed = "5000"; break;
+		speed = "5000"; break;
 	default:
 		speed = "??";
 	}

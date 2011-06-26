@@ -50,8 +50,8 @@ int kgsl_g12_cmdstream_init(struct kgsl_device *device)
 	g12_device->ringbuffer.prevctx = KGSL_G12_INVALID_CONTEXT;
 	g12_device->timestamp = 0;
 	g12_device->current_timestamp = 0;
-	return kgsl_sharedmem_alloc_coherent(&g12_device->ringbuffer.cmdbufdesc,
-                                            KGSL_G12_RB_SIZE);
+	return kgsl_sharedmem_alloc(0, KGSL_G12_RB_SIZE,
+				    &g12_device->ringbuffer.cmdbufdesc);
 }
 
 int kgsl_g12_cmdstream_start(struct kgsl_device *device)
@@ -149,7 +149,8 @@ kgsl_g12_cmdstream_issueibcmds(struct kgsl_device_private *dev_priv,
 	KGSL_CMD_INFO("ctxt %d ibaddr 0x%08x sizedwords %d",
 		      drawctxt_index, ibaddr, sizedwords);
 	/* context switch */
-	if (drawctxt_index != (int)g12_device->ringbuffer.prevctx) {
+	if (drawctxt_index != (int)g12_device->ringbuffer.prevctx ||
+      	    (ctrl & KGSL_CONTEXT_CTX_SWITCH)) {
 		KGSL_CMD_INFO("context switch %d -> %d",
 				drawctxt_index, g12_device->ringbuffer.prevctx);
 		kgsl_mmu_setstate(device, pagetable);

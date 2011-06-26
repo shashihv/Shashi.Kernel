@@ -88,12 +88,6 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
 	struct inode *inode = dentry->d_inode;
 	int error = -EOPNOTSUPP;
 
-	int issec = !strncmp(name, XATTR_SECURITY_PREFIX,
-            XATTR_SECURITY_PREFIX_LEN);
-            
-  if (issec)
-    inode->i_flags &= ~S_NOSEC;
-
 	if (inode->i_op->setxattr) {
 		error = inode->i_op->setxattr(dentry, name, value, size, flags);
 		if (!error) {
@@ -101,7 +95,8 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
 			security_inode_post_setxattr(dentry, name, value,
 						     size, flags);
 		}
-	} else if (issec) {
+	} else if (!strncmp(name, XATTR_SECURITY_PREFIX,
+				XATTR_SECURITY_PREFIX_LEN)) {
 		const char *suffix = name + XATTR_SECURITY_PREFIX_LEN;
 		error = security_inode_setsecurity(inode, suffix, value,
 						   size, flags);

@@ -1786,12 +1786,16 @@ int usb_new_device(struct usb_device *udev)
 {
 	int err;
 
-	/* Increment the parent's count of unsuspended children */
 	if (udev->parent) {
+		/* Increment the parent's count of unsuspended children */
 		usb_autoresume_device(udev->parent);
 
+		/* Initialize non-root-hub device wakeup to disabled;
+		 * device (un)configuration controls wakeup capable
+		 * sysfs power/wakeup controls wakeup enabled/disabled
+		 */
 		device_init_wakeup(&udev->dev, 0);
-  }
+	}
 
 	err = usb_enumerate_device(udev);	/* Read descriptors */
 	if (err < 0)

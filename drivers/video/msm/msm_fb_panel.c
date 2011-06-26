@@ -37,10 +37,6 @@
 
 #include "msm_fb_panel.h"
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#undef CONFIG_HAS_EARLYSUSPEND
-#endif
-
 int panel_next_on(struct platform_device *pdev)
 {
 	int ret = 0;

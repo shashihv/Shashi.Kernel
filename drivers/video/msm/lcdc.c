@@ -69,10 +69,8 @@ static int lcdc_off(struct platform_device *pdev)
 
 	ret = panel_next_off(pdev);
 
-	/* LGE_CHANGE, change clock disable sequece, dclk off -> vsync off */
-	clk_disable(pixel_lcdc_clk);
-	msleep(16);
 	clk_disable(pixel_mdp_clk);
+	clk_disable(pixel_lcdc_clk);
 
 	if (lcdc_pdata && lcdc_pdata->lcdc_power_save)
 		lcdc_pdata->lcdc_power_save(0);

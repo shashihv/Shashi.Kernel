@@ -557,6 +557,19 @@ static void __init_timer(struct timer_list *timer,
 	lockdep_init_map(&timer->lockdep_map, name, key, 0);
 }
 
+void setup_deferrable_timer_on_stack_key(struct timer_list *timer,
+					 const char *name,
+					 struct lock_class_key *key,
+					 void (*function)(unsigned long),
+					 unsigned long data)
+{
+	timer->function = function;
+	timer->data = data;
+	init_timer_on_stack_key(timer, name, key);
+	timer_set_deferrable(timer);
+}
+EXPORT_SYMBOL_GPL(setup_deferrable_timer_on_stack_key);
+
 /**
  * init_timer_key - initialize a timer
  * @timer: the timer to be initialized
@@ -1693,12 +1706,12 @@ EXPORT_SYMBOL(msleep_interruptible);
 
 static int __sched do_usleep_range(unsigned long min, unsigned long max)
 {
-  ktime_t kmin;
-  unsigned long delta;
+	ktime_t kmin;
+	unsigned long delta;
 
-  kmin = ktime_set(0, min * NSEC_PER_USEC);
-  delta = (max - min) * NSEC_PER_USEC;
-  return schedule_hrtimeout_range(&kmin, delta, HRTIMER_MODE_REL);
+	kmin = ktime_set(0, min * NSEC_PER_USEC);
+	delta = max - min;
+	return schedule_hrtimeout_range(&kmin, delta, HRTIMER_MODE_REL);
 }
 
 /**
@@ -1708,7 +1721,7 @@ static int __sched do_usleep_range(unsigned long min, unsigned long max)
  */
 void usleep_range(unsigned long min, unsigned long max)
 {
-  __set_current_state(TASK_UNINTERRUPTIBLE);
-  do_usleep_range(min, max);
+	__set_current_state(TASK_UNINTERRUPTIBLE);
+	do_usleep_range(min, max);
 }
 EXPORT_SYMBOL(usleep_range);

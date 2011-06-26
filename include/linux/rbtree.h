@@ -158,12 +158,4 @@ static inline void rb_link_node(struct rb_node * node, struct rb_node * parent,
 	*rb_link = node;
 }
 
-static inline void rb_init_node(struct rb_node *rb)
-{
-  rb->rb_parent_color = 0;
-  rb->rb_right = NULL;
-  rb->rb_left = NULL;
-  RB_CLEAR_NODE(rb);
-}
-
 #endif	/* _LINUX_RBTREE_H */

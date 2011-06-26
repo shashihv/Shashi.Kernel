@@ -370,6 +370,7 @@ struct msm_rpc_client *msm_rpc_register_client2(
 					"k%sclntcbd", name);
 	if (IS_ERR(client->cb_thread)) {
 		rc = PTR_ERR(client->cb_thread);
+		client->exit_flag = 1;
 		msm_rpc_read_wakeup(client->ept);
 		wait_for_completion(&client->complete);
 		msm_rpc_close(client->ept);

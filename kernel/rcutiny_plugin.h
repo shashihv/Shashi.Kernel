@@ -26,10 +26,6 @@
 
 #include <linux/delay.h>
 
-/* FIXME: merge with definitions in kernel/rcutree.h. */
-#define ULONG_CMP_GE(a, b)	(ULONG_MAX / 2 >= (a) - (b))
-#define ULONG_CMP_LT(a, b)	(ULONG_MAX / 2 < (a) - (b))
-
 /* Global control variables for preemptible RCU. */
 struct rcu_preempt_ctrlblk {
 	struct rcu_ctrlblk rcb;	/* curtail: ->next ptr of last CB for GP. */
@@ -76,7 +72,7 @@ static void rcu_report_exp_done(void);
 /*
  * Return true if the CPU has not yet responded to the current grace period.
  */
-static int rcu_cpu_cur_gp(void)
+static int rcu_cpu_blocking_cur_gp(void)
 {
 	return rcu_preempt_ctrlblk.gpcpu != rcu_preempt_ctrlblk.gpnum;
 }
@@ -233,7 +229,7 @@ void rcu_preempt_note_context_switch(void)
 		 * cannot end.
 		 */
 		list_add(&t->rcu_node_entry, &rcu_preempt_ctrlblk.blkd_tasks);
-		if (rcu_cpu_cur_gp())
+		if (rcu_cpu_blocking_cur_gp())
 			rcu_preempt_ctrlblk.gp_tasks = &t->rcu_node_entry;
 	}
 
@@ -372,12 +368,16 @@ static void rcu_preempt_check_callbacks(void)
 {
 	struct task_struct *t = current;
 
-	if (!rcu_preempt_running_reader() && rcu_preempt_gp_in_progress())
+	if (rcu_preempt_gp_in_progress() &&
+	    (!rcu_preempt_running_reader() ||
+	     !rcu_cpu_blocking_cur_gp()))
 		rcu_preempt_cpu_qs();
 	if (&rcu_preempt_ctrlblk.rcb.rcucblist !=
 	    rcu_preempt_ctrlblk.rcb.donetail)
 		raise_softirq(RCU_SOFTIRQ);
-	if (rcu_preempt_gp_in_progress() && rcu_preempt_running_reader())
+	if (rcu_preempt_gp_in_progress() &&
+	    rcu_cpu_blocking_cur_gp() &&
+	    rcu_preempt_running_reader())
 		t->rcu_read_unlock_special |= RCU_READ_UNLOCK_NEED_QS;
 }
 
@@ -572,6 +572,7 @@ void exit_rcu(void)
 
 #else /* #ifdef CONFIG_TINY_PREEMPT_RCU */
 
+#ifndef CONFIG_CLASSIC_RCU
 /*
  * Because preemptible RCU does not exist, it never has any callbacks
  * to check.
@@ -595,6 +596,7 @@ static void rcu_preempt_remove_callbacks(struct rcu_ctrlblk *rcp)
 static void rcu_preempt_process_callbacks(void)
 {
 }
+#endif /* CONFIG_CLASSIC_RCU */
 
 #endif /* #else #ifdef CONFIG_TINY_PREEMPT_RCU */
 

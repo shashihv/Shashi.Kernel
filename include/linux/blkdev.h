@@ -752,16 +752,6 @@ struct req_iterator {
 #define rq_iter_last(rq, _iter)					\
 		(_iter.bio->bi_next == NULL && _iter.i == _iter.bio->bi_vcnt-1)
 
-#ifndef ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE
-# error        "You should define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE for your platform"
-#endif
-#if ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE
-extern void rq_flush_dcache_pages(struct request *rq);
-#else
-static inline void rq_flush_dcache_pages(struct request *rq)
-{
-}
-#endif
 extern int blk_register_queue(struct gendisk *disk);
 extern void blk_unregister_queue(struct gendisk *disk);
 extern void register_disk(struct gendisk *dev);
@@ -1288,7 +1278,7 @@ struct block_device_operations {
 	int (*revalidate_disk) (struct gendisk *);
 	int (*getgeo)(struct block_device *, struct hd_geometry *);
 	/* this callback is with swap_lock and sometimes page table lock held */
-  	void (*swap_slot_free_notify) (struct block_device *, unsigned long);
+	void (*swap_slot_free_notify) (struct block_device *, unsigned long);
 	struct module *owner;
 };
 

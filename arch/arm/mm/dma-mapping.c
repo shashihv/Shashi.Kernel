@@ -225,15 +225,16 @@ __dma_alloc(struct device *dev, size_t size, dma_addr_t *handle, gfp_t gfp,
 		outer_flush_range(__pa(ptr), __pa(ptr) + size);
 	}
 
-	bit = fls(size - 1) + 1;
-  	if (bit > SECTION_SHIFT)
-    	  bit = SECTION_SHIFT;
-  	align = 1 << bit;
+bit = fls(size - 1) + 1;
+  if (bit > SECTION_SHIFT)
+    bit = SECTION_SHIFT;
+  align = 1 << bit;
+
 	/*
 	 * Allocate a virtual address in the consistent mapping region.
 	 */
 	c = arm_vm_region_alloc(&consistent_head, align, size,
-		gfp & ~(__GFP_DMA | __GFP_HIGHMEM));
+			    gfp & ~(__GFP_DMA | __GFP_HIGHMEM));
 	if (c) {
 		pte_t *pte;
 		struct page *end = page + (1 << order);

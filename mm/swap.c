@@ -174,10 +174,11 @@ static void update_page_reclaim_stat(struct zone *zone, struct page *page,
 /*
  * FIXME: speed this up?
  */
-static void __activate_page(struct page *page, void *arg)
+void activate_page(struct page *page)
 {
 	struct zone *zone = page_zone(page);
 
+	spin_lock_irq(&zone->lru_lock);
 	if (PageLRU(page) && !PageActive(page) && !PageUnevictable(page)) {
 		int file = page_is_file_cache(page);
 		int lru = page_lru_base_type(page);
@@ -190,45 +191,8 @@ static void __activate_page(struct page *page, void *arg)
 
 		update_page_reclaim_stat(zone, page, file, 1);
 	}
-}
-
-#ifdef CONFIG_SMP
-static DEFINE_PER_CPU(struct pagevec, activate_page_pvecs);
-
-static void activate_page_drain(int cpu)
-{
-       struct pagevec *pvec = &per_cpu(activate_page_pvecs, cpu);
-
-       if (pagevec_count(pvec))
-               pagevec_lru_move_fn(pvec, __activate_page, NULL);
-}
-
-void activate_page(struct page *page)
-{
-       if (PageLRU(page) && !PageActive(page) && !PageUnevictable(page)) {
-               struct pagevec *pvec = &get_cpu_var(activate_page_pvecs);
-
-               page_cache_get(page);
-               if (!pagevec_add(pvec, page))
-                       pagevec_lru_move_fn(pvec, __activate_page, NULL);
-               put_cpu_var(activate_page_pvecs);
-       }
-}
-
-#else
-static inline void activate_page_drain(int cpu)
-{
-}
-
-void activate_page(struct page *page)
-{
-       struct zone *zone = page_zone(page);
-
-       spin_lock_irq(&zone->lru_lock);
-       __activate_page(page, NULL);
 	spin_unlock_irq(&zone->lru_lock);
 }
-#endif
 
 /*
  * Mark a page as having seen activity.
@@ -250,29 +214,22 @@ void mark_page_accessed(struct page *page)
 
 EXPORT_SYMBOL(mark_page_accessed);
 
-void ______pagevec_lru_add(struct pagevec *pvec, enum lru_list lru, int tail);
-
-void ____lru_cache_add(struct page *page, enum lru_list lru, int tail)
+void __lru_cache_add(struct page *page, enum lru_list lru)
 {
 	struct pagevec *pvec = &get_cpu_var(lru_add_pvecs)[lru];
 
 	page_cache_get(page);
 	if (!pagevec_add(pvec, page))
-		______pagevec_lru_add(pvec, lru, tail);
+		____pagevec_lru_add(pvec, lru);
 	put_cpu_var(lru_add_pvecs);
 }
-EXPORT_SYMBOL(____lru_cache_add);
 
-void __lru_cache_add(struct page *page, enum lru_list lru)
-{
-  ____lru_cache_add(page, lru, 0);
-}
 /**
  * lru_cache_add_lru - add a page to a page list
  * @page: the page to be added to the LRU.
  * @lru: the LRU list to which the page is added.
  */
-void __lru_cache_add_lru(struct page *page, enum lru_list lru, int tail)
+void lru_cache_add_lru(struct page *page, enum lru_list lru)
 {
 	if (PageActive(page)) {
 		VM_BUG_ON(PageUnevictable(page));
@@ -283,12 +240,7 @@ void __lru_cache_add_lru(struct page *page, enum lru_list lru, int tail)
 	}
 
 	VM_BUG_ON(PageLRU(page) || PageActive(page) || PageUnevictable(page));
-	____lru_cache_add(page, lru, tail);
-}
-
-void lru_cache_add_lru(struct page *page, enum lru_list lru)
-{
-  __lru_cache_add_lru(page, lru, 0);
+	__lru_cache_add(page, lru);
 }
 
 /**
@@ -338,7 +290,6 @@ static void drain_cpu_pagevecs(int cpu)
 		pagevec_move_tail(pvec);
 		local_irq_restore(flags);
 	}
-	activate_page_drain(cpu);
 }
 
 void lru_add_drain(void)
@@ -449,7 +400,7 @@ EXPORT_SYMBOL(__pagevec_release);
  * Add the passed pages to the LRU, then drop the caller's refcount
  * on them.  Reinitialises the caller's pagevec.
  */
-void ______pagevec_lru_add(struct pagevec *pvec, enum lru_list lru, int tail)
+void ____pagevec_lru_add(struct pagevec *pvec, enum lru_list lru)
 {
 	int i;
 	struct zone *zone = NULL;
@@ -477,7 +428,7 @@ void ______pagevec_lru_add(struct pagevec *pvec, enum lru_list lru, int tail)
 		if (active)
 			SetPageActive(page);
 		update_page_reclaim_stat(zone, page, file, active);
-		__add_page_to_lru_list(zone, page, lru, tail);
+		add_page_to_lru_list(zone, page, lru);
 	}
 	if (zone)
 		spin_unlock_irq(&zone->lru_lock);
@@ -485,10 +436,6 @@ void ______pagevec_lru_add(struct pagevec *pvec, enum lru_list lru, int tail)
 	pagevec_reinit(pvec);
 }
 
-void ____pagevec_lru_add(struct pagevec *pvec, enum lru_list lru)
-{
-  ______pagevec_lru_add(pvec, lru, 0);
-}
 EXPORT_SYMBOL(____pagevec_lru_add);
 
 /*

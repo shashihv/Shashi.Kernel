@@ -579,6 +579,7 @@ static void handle_smd_irq(struct list_head *list, void (*notify)(void))
 			ch->notify(ch->priv, SMD_EVENT_DATA);
 		}
 	}
+
 	spin_unlock_irqrestore(&smd_lock, flags);
 	do_smd_probe();
 }

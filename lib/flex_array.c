@@ -158,7 +158,6 @@ static unsigned int index_inside_part(struct flex_array *fa,
 static struct flex_array_part *
 __fa_get_part(struct flex_array *fa, int part_nr, gfp_t flags)
 {
-
 	struct flex_array_part *part = fa->parts[part_nr];
 	if (!part) {
 		part = kmalloc(sizeof(struct flex_array_part), flags);

@@ -47,8 +47,6 @@
 #define PLLn_MODE(n)	(MSM_CLK_CTL_BASE + 0x300 + 28 * (n))
 #define PLLn_L_VAL(n)	(MSM_CLK_CTL_BASE + 0x304 + 28 * (n))
 
-#define OVERCLOCK_AHB
-
 #define dprintk(msg...) \
 	cpufreq_debug_printk(CPUFREQ_DEBUG_DRIVER, "cpufreq-msm", msg)
 
@@ -223,9 +221,9 @@ static struct clkctl_acpu_speed pll0_960_pll1_245_pll2_1200[] = {
 	{ 1, 710400, ACPU_PLL_0, 4, 0, 236800, 2, 7, 200000 },
 	{ 1, 729600, ACPU_PLL_0, 4, 0, 243200, 2, 7, 200000 },
 	{ 1, 748800, ACPU_PLL_0, 4, 0, 249600, 2, 7, 200000 },
-	{ 1, 768000, ACPU_PLL_0, 4, 0, 384000, 1, 7, 200000 },
-	{ 1, 787200, ACPU_PLL_0, 4, 0, 393600, 1, 7, 200000 },
-	{ 1, 806400, ACPU_PLL_0, 4, 0, 403200, 1, 7, 200000 },
+	{ 1, 768000, ACPU_PLL_0, 4, 0, 256000, 2, 7, 200000 },
+	{ 1, 787200, ACPU_PLL_0, 4, 0, 262400, 2, 7, 200000 },
+	{ 1, 806400, ACPU_PLL_0, 4, 0, 268800, 2, 7, 200000 },
 	{ 1, 825600, ACPU_PLL_0, 4, 0, 206400, 3, 7, 122880 },
 	{ 1, 844800, ACPU_PLL_0, 4, 0, 211200, 3, 7, 122880 },
 	{ 1, 864000, ACPU_PLL_0, 4, 0, 216000, 3, 7, 122880 },
@@ -351,19 +349,17 @@ static int pc_pll_request(unsigned id, unsigned on)
 		if (on) {
 			pll_control->pll[PLL_BASE + id].votes |= 2;
 			if (!pll_control->pll[PLL_BASE + id].on) {
-				writel_relaxed(6, PLLn_MODE(id));
-				dsb();
+				writel(6, PLLn_MODE(id));
 				udelay(50);
-				writel_relaxed(7, PLLn_MODE(id));
+				writel(7, PLLn_MODE(id));
 				pll_control->pll[PLL_BASE + id].on = 1;
 			}
 		} else {
 			pll_control->pll[PLL_BASE + id].votes &= ~2;
 			if (pll_control->pll[PLL_BASE + id].on
 			    && !pll_control->pll[PLL_BASE + id].votes) {
-				writel_relaxed(0, PLLn_MODE(id));
+				writel(0, PLLn_MODE(id));
 				pll_control->pll[PLL_BASE + id].on = 0;
-				dsb();
 			}
 		}
 		remote_spin_unlock(&pll_lock);
@@ -413,10 +409,9 @@ static int acpuclk_set_vdd_level(int vdd)
 	dprintk("Switching VDD from %u mV -> %d mV\n",
 	       current_vdd, vdd);
 
-	writel_relaxed((1 << 7) | (vdd << 3), A11S_VDD_SVS_PLEVEL_ADDR);
-	dsb();
+	writel((1 << 7) | (vdd << 3), A11S_VDD_SVS_PLEVEL_ADDR);
 	udelay(drv_state.vdd_switch_time_us);
-	if ((readl_relaxed(A11S_VDD_SVS_PLEVEL_ADDR) & 0x7) != vdd) {
+	if ((readl(A11S_VDD_SVS_PLEVEL_ADDR) & 0x7) != vdd) {
 		pr_err("VDD set failed\n");
 		return -EIO;
 	}
@@ -578,8 +573,7 @@ int acpuclk_set_rate(int cpu, unsigned long rate, enum setrate_reason reason)
 	/* Set wait states for CPU inbetween frequency changes */
 	reg_clkctl = readl(A11S_CLK_CNTL_ADDR);
 	reg_clkctl |= (100 << 16); /* set WT_ST_CNT */
-	writel_relaxed(reg_clkctl, A11S_CLK_CNTL_ADDR);
-	dsb();
+	writel(reg_clkctl, A11S_CLK_CNTL_ADDR);
 
 	dprintk("Switching from ACPU rate %u KHz -> %u KHz\n",
 		       strt_s->a11clk_khz, tgt_s->a11clk_khz);
@@ -641,7 +635,6 @@ int acpuclk_set_rate(int cpu, unsigned long rate, enum setrate_reason reason)
 		drv_state.current_speed = cur_s;
 		/* Re-adjust lpj for the new clock speed. */
 		loops_per_jiffy = cur_s->lpj;
-		dsb();
 		udelay(drv_state.acpu_switch_time_us);
 	}
 

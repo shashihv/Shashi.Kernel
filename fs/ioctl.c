@@ -254,7 +254,7 @@ int __generic_block_fiemap(struct inode *inode,
 			   u64 len, get_block_t *get_block)
 {
 	struct buffer_head tmp;
-	unsigned long long start_blk;
+	unsigned long long start_blk, test_var;
 	long long length = 0, map_len = 0;
 	u64 logical = 0, phys = 0, size = 0;
 	u32 flags = FIEMAP_EXTENT_MERGED;
@@ -262,6 +262,10 @@ int __generic_block_fiemap(struct inode *inode,
 
 	if ((ret = fiemap_check_flags(fieinfo, FIEMAP_FLAG_SYNC)))
 		return ret;
+
+	test_var = logical_to_blk(inode, len);
+  if( test_var == 0 )
+    len = blk_to_logical(inode, 1);
 
 	start_blk = logical_to_blk(inode, start);
 
@@ -570,10 +574,10 @@ int do_vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd,
 
 	case FIOQSIZE:
 		if (S_ISDIR(inode->i_mode) || S_ISREG(inode->i_mode) ||
-                   S_ISLNK(inode->i_mode)) {
-                       loff_t res = inode_get_bytes(inode);
-                       error = copy_to_user(argp, &res, sizeof(res)) ?
-                                       -EFAULT : 0;
+        S_ISLNK(inode->i_mode)) {
+          loff_t res = inode_get_bytes(inode);
+          error = copy_to_user(argp, &res, sizeof(res)) ?
+            -EFAULT : 0;
 		} else
 			error = -ENOTTY;
 		break;

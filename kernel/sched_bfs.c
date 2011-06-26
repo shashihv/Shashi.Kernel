@@ -120,7 +120,7 @@
 #define NS_TO_MS(TIME)		((TIME) >> 20)
 #define NS_TO_US(TIME)		((TIME) >> 10)
 
-#define RESCHED_US	(100) /* Reschedule if less than this many ÃŽÂ¼s left */
+#define RESCHED_US	(100) /* Reschedule if less than this many Î¼s left */
 
 /*
  * This is the time all tasks within the same priority round robin.
@@ -1527,7 +1527,7 @@ static int try_to_wake_up(struct task_struct *p, unsigned int state,
 
 	get_cpu();
 
-	/* This barrier is undocumented, probably for p->state? Ã£ÂÂÃ£ÂÂ */
+	/* This barrier is undocumented, probably for p->state? ãã */
 	smp_wmb();
 
 	/*
@@ -1536,7 +1536,7 @@ static int try_to_wake_up(struct task_struct *p, unsigned int state,
 	 */
 	rq = task_grq_lock(p, &flags);
 
-	/* state is a volatile long, Ã£ÂÂ©Ã£Ââ€ Ã£Ââ€”Ã£ÂÂ¦Ã£â‚¬ÂÃ¥Ë†â€ Ã£Ââ€¹Ã£â€šâ€°Ã£ÂÂªÃ£Ââ€ž */
+	/* state is a volatile long, ã©ã†ã—ã¦ã€åˆ†ã‹ã‚‰ãªã„ */
 	if (!((unsigned int)p->state & state))
 		goto out_unlock;
 
@@ -2564,7 +2564,7 @@ static void task_running_tick(struct rq *rq)
 	 * Tasks that were scheduled in the first half of a tick are not
 	 * allowed to run into the 2nd half of the next tick if they will
 	 * run out of time slice in the interim. Otherwise, if they have
-	 * less than RESCHED_US ÃŽÂ¼s of time slice left they will be rescheduled.
+	 * less than RESCHED_US Î¼s of time slice left they will be rescheduled.
 	 */
 	if (rq->dither) {
 		if (rq->rq_time_slice > HALF_JIFFY_US)
@@ -3329,11 +3329,6 @@ wait_for_common(struct completion *x, long timeout, int state)
 	return timeout;
 }
 
-void __sched wait_for_completion_io(struct completion *x)
-{
-        wait_for_common(x, MAX_SCHEDULE_TIMEOUT, TASK_UNINTERRUPTIBLE);
-}
-
 /**
  * wait_for_completion: - waits for completion of a task
  * @x:  holds the state of this particular completion
@@ -3843,7 +3838,7 @@ recheck:
 					if (policy == SCHED_BATCH)
 						goto out;
 					if (policy == SCHED_NORMAL)
-            					break;
+          					break;
 					if (policy != SCHED_IDLEPRIO)
 						return -EPERM;
 					break;
@@ -4247,7 +4242,7 @@ static inline int should_resched(void)
 
 static void __cond_resched(void)
 {
-	/* NOT a real fix but will make voluntary preempt work. Ã©Â¦Â¬Ã©Â¹Â¿Ã£ÂÂªÃ¤Âºâ€¹ */
+	/* NOT a real fix but will make voluntary preempt work. é¦¬é¹¿ãªäº‹ */
 	if (unlikely(system_state != SYSTEM_RUNNING))
 		return;
 

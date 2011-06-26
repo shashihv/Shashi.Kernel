@@ -37,10 +37,6 @@
 #include "mdp.h"
 #include "msm_fb.h"
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#undef CONFIG_HAS_EARLYSUSPEND
-#endif
-
 #define MDP_IS_IMGTYPE_BAD(x) (((x) >= MDP_IMGTYPE_LIMIT) && \
 				(((x) < MDP_IMGTYPE2_START) || \
 				 ((x) >= MDP_IMGTYPE_LIMIT2)))
@@ -1432,11 +1428,7 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 	down(&mdp_ppp_mutex);
 	/* MDP cmd block enable */
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
-	
-	/* progressbar's glitch is observed when go to another site during landscape in browser.
-	 * dojip.kim@lge.com 2010-08-17, QCT Case 00356710
-	 */
-//#ifdef CONFIG_FB_MSM_MDP31
+
 #ifndef CONFIG_FB_MSM_MDP22
 	mdp_start_ppp(mfd, &iBuf, req, p_src_file, p_dst_file);
 #else

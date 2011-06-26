@@ -246,7 +246,7 @@ int audmgr_open(struct audmgr *am)
 					API\n", AUDMGR_VERS_COMP);
 					amg->ept = msm_rpc_connect(AUDMGR_PROG,
 						AUDMGR_VERS,
-						MSM_RPC_UNINTERRUPTIBLE);
+						MSM_RPC_UNINTERRUPTIBLE | MSM_RPC_ENABLE_RECEIVE);
 					amg->rpc_version = AUDMGR_VERS;
 				} else
 					amg->rpc_version = AUDMGR_VERS_COMP;

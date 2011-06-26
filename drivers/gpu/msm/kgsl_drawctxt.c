@@ -73,7 +73,7 @@
 
 /* Constants */
 
-//#undef DISABLE_SHADOW_WRITES
+#undef DISABLE_SHADOW_WRITES
 
 #define ALU_CONSTANTS	2048	/* DWORDS */
 #define NUM_REGISTERS	1024	/* DWORDS */
@@ -174,8 +174,8 @@ unsigned int uint2float(unsigned int uintval)
 	}
 
 	/* Calculate fraction */
-	if (23 > exp)
-               frac = (uintval & (~(1 << exp))) << (23 - exp);
+	if (23 >= exp)
+		frac = (uintval & (~(1 << exp))) << (23 - exp);
 
 	/* Exp is biased by 127 and shifted 23 bits */
 	exp = (exp + 127) << 23;

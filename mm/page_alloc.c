@@ -797,7 +797,7 @@ static int move_freepages(struct zone *zone,
 
 		order = page_order(page);
 		list_move(&page->lru,
-			  &zone->free_area[order].free_list[migratetype]);
+			&zone->free_area[order].free_list[migratetype]);
 		page += 1 << order;
 		pages_moved += 1 << order;
 	}
@@ -1879,15 +1879,14 @@ restart:
 	 */
 	alloc_flags = gfp_to_alloc_flags(gfp_mask);
 
+rebalance:
 	/* This is the last chance, in general, before the goto nopage. */
 	page = get_page_from_freelist(gfp_mask, nodemask, order, zonelist,
 			high_zoneidx, alloc_flags & ~ALLOC_NO_WATERMARKS,
 			preferred_zone, migratetype);
-
 	if (page)
 		goto got_pg;
 
-rebalance:
 	/* Allocate without watermarks if the context allows */
 	if (alloc_flags & ALLOC_NO_WATERMARKS) {
 		page = __alloc_pages_high_priority(gfp_mask, order,
@@ -2913,14 +2912,14 @@ static inline unsigned long wait_table_bits(unsigned long size)
 /*
  * Check if a pageblock contains reserved pages
  */
-static int pageblock_is_reserved2(unsigned long start_pfn, unsigned long end_pfn)
+static int pageblock_is_reserved(unsigned long start_pfn)
 {
+	unsigned long end_pfn = start_pfn + pageblock_nr_pages;
 	unsigned long pfn;
 
-	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
-    	  if (!pfn_valid_within(pfn) || PageReserved(pfn_to_page(pfn)))
+	for (pfn = start_pfn; pfn < end_pfn; pfn++)
+		if (PageReserved(pfn_to_page(pfn)))
 			return 1;
-	}
 	return 0;
 }
 
@@ -2933,7 +2932,7 @@ static int pageblock_is_reserved2(unsigned long start_pfn, unsigned long end_pfn
  */
 static void setup_zone_migrate_reserve(struct zone *zone)
 {
-	unsigned long start_pfn, pfn, end_pfn, block_end_pfn;
+	unsigned long start_pfn, pfn, end_pfn;
 	struct page *page;
 	unsigned long block_migratetype;
 	int reserve;
@@ -2963,8 +2962,7 @@ static void setup_zone_migrate_reserve(struct zone *zone)
 			continue;
 
 		/* Blocks with reserved pages will never free, skip them. */
-		block_end_pfn = min(pfn + pageblock_nr_pages, end_pfn);
-    		if (pageblock_is_reserved2(pfn, block_end_pfn))
+		if (pageblock_is_reserved(pfn))
 			continue;
 
 		block_migratetype = get_pageblock_migratetype(page);
@@ -3909,7 +3907,7 @@ static void __paginginit free_area_init_core(struct pglist_data *pgdat,
 		zone->prev_priority = DEF_PRIORITY;
 
 		zone_pcp_init(zone);
-		for_each_lru(l) 
+		for_each_lru(l)
 			INIT_LIST_HEAD(&zone->lru[l].list);
 
 		zone->reclaim_stat.recent_rotated[0] = 0;

@@ -80,6 +80,7 @@ deps_config := \
 	fs/Kconfig \
 	drivers/platform/x86/Kconfig \
 	drivers/platform/Kconfig \
+	drivers/staging/zram/Kconfig \
 	drivers/staging/iio/trigger/Kconfig \
 	drivers/staging/iio/light/Kconfig \
 	drivers/staging/iio/adc/Kconfig \
@@ -114,7 +115,6 @@ deps_config := \
 	drivers/staging/rtl8187se/Kconfig \
 	drivers/staging/altpciechdma/Kconfig \
 	drivers/staging/panel/Kconfig \
-	drivers/staging/zram/Kconfig \
 	drivers/staging/asus_oled/Kconfig \
 	drivers/staging/comedi/Kconfig \
 	drivers/staging/rt3090/Kconfig \
@@ -556,7 +556,7 @@ deps_config := \
 include/config/auto.conf: \
 	$(deps_config)
 
-ifneq "$(KERNELVERSION)" "2.6.32.39"
+ifneq "$(KERNELVERSION)" "2.6.32.41"
 include/config/auto.conf: FORCE
 endif
 ifneq "$(ARCH)" "arm"

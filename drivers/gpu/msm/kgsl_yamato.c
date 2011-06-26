@@ -25,7 +25,6 @@
 #include <linux/timer.h>
 #include <linux/workqueue.h>
 #include <linux/notifier.h>
-#include <linux/cpufreq.h>
 
 #include "kgsl_drawctxt.h"
 #include "kgsl.h"
@@ -504,6 +503,7 @@ kgsl_yamato_init(struct kgsl_device *device, struct kgsl_devconfig *config)
 								device;
 	int status = -EINVAL;
 	struct kgsl_memregion *regspace = &device->regspace;
+	unsigned int memflags = KGSL_MEMFLAGS_ALIGNPAGE | KGSL_MEMFLAGS_CONPHYS;
 
 	KGSL_DRV_VDBG("enter (device=%p, config=%p)\n", device, config);
 
@@ -582,8 +582,8 @@ kgsl_yamato_init(struct kgsl_device *device, struct kgsl_devconfig *config)
 		goto error_close_mmu;
 	}
 
-	status = kgsl_sharedmem_alloc_coherent(&device->memstore,
-                                              sizeof(device->memstore));
+	status = kgsl_sharedmem_alloc(memflags, sizeof(device->memstore),
+				&device->memstore);
 	if (status != 0)  {
 		status = -ENODEV;
 		goto error_close_cmdstream;
@@ -713,7 +713,7 @@ static int kgsl_yamato_start(struct kgsl_device *device)
 
 	kgsl_yamato_regwrite(device, REG_MH_ARBITER_CONFIG,
 				KGSL_CFG_YAMATO_MHARB);
-
+				
 	kgsl_yamato_regwrite(device, REG_MH_CLNT_INTF_CTRL_CONFIG1, 0x00030f27);
 	kgsl_yamato_regwrite(device, REG_MH_CLNT_INTF_CTRL_CONFIG2, 0x00472747);
 

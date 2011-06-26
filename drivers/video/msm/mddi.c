@@ -45,6 +45,7 @@
 #undef CONFIG_HAS_EARLYSUSPEND
 #endif
 
+
 static int mddi_probe(struct platform_device *pdev);
 static int mddi_remove(struct platform_device *pdev);
 

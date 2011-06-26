@@ -37,10 +37,6 @@
 #include "mdp.h"
 #include "msm_fb.h"
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#undef CONFIG_HAS_EARLYSUSPEND
-#endif
-
 static void mdp_dma_s_update_lcd(struct msm_fb_data_type *mfd)
 {
 	MDPIBUF *iBuf = &mfd->ibuf;
@@ -78,6 +74,8 @@ static void mdp_dma_s_update_lcd(struct msm_fb_data_type *mfd)
 		dma_s_cfg_reg |= DMA_AHBM_LCD_SEL_SECONDARY;
 		outp32(MDP_EBI2_LCD1, mfd->data_port_phys);
 	}
+
+	dma_s_cfg_reg |= DMA_DITHER_EN;
 
 	src = (uint8 *) iBuf->buf;
 	/* starting input address */

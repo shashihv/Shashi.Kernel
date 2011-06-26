@@ -741,7 +741,7 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
 	/* ensure we never gain time by being placed backwards. */
 	vruntime = max_vruntime(se->vruntime, vruntime);
 
-  	se->vruntime = vruntime;
+	se->vruntime = vruntime;
 }
 
 #define ENQUEUE_WAKEUP	1
@@ -928,8 +928,8 @@ static void put_prev_entity(struct cfs_rq *cfs_rq, struct sched_entity *prev)
 	if (prev->on_rq)
 		update_curr(cfs_rq);
 
-	  check_spread(cfs_rq, prev);
-	  if (prev->on_rq) {
+	check_spread(cfs_rq, prev);
+	if (prev->on_rq) {
 		update_stats_wait_start(cfs_rq, prev);
 		/* Put 'current' back into the tree. */
 		__enqueue_entity(cfs_rq, prev);

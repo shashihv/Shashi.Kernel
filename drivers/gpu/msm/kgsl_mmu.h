@@ -30,6 +30,7 @@
 #define __GSL_MMU_H
 #include <linux/types.h>
 #include <linux/msm_kgsl.h>
+#include <asm/io.h>
 #include "kgsl_log.h"
 #include "kgsl_sharedmem.h"
 

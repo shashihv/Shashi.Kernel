@@ -52,11 +52,13 @@ int migrate_prep(void)
 
 	return 0;
 }
+
 int migrate_prep_local(void)
 {
   lru_add_drain();
   return 0;
 }
+
 /*
  * Add isolated pages on the list back to the LRU under page lock
  * to avoid leaking evictable pages back onto unevictable list.

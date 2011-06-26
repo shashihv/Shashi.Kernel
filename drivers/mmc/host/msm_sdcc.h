@@ -247,6 +247,9 @@ struct msmsdcc_host {
 
 	struct tasklet_struct 	dma_tlet;
 
+#ifdef CONFIG_MMC_AUTO_SUSPEND
+	unsigned long           suspended;
+#endif
 	unsigned int prog_scan;
 	unsigned int prog_enable;
 

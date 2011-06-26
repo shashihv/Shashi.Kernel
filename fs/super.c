@@ -194,13 +194,9 @@ void deactivate_super(struct super_block *s)
 		s->s_count -= S_BIAS-1;
 		spin_unlock(&sb_lock);
 		vfs_dq_off(s, 0);
+		cleancache_flush_fs(s);
 		down_write(&s->s_umount);
 		fs->kill_sb(s);
-		if (s->cleancache_poolid >= 0) {
-      		  int cleancache_poolid = s->cleancache_poolid;
-      		  s->cleancache_poolid = -1; /* avoid races */
-      		  cleancache_flush_fs(cleancache_poolid);
-    		}
 		put_filesystem(fs);
 		put_super(s);
 	}

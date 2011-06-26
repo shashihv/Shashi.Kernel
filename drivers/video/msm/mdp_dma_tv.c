@@ -38,10 +38,6 @@
 #include "mdp.h"
 #include "msm_fb.h"
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#undef CONFIG_HAS_EARLYSUSPEND
-#endif
-
 extern spinlock_t mdp_spin_lock;
 extern uint32 mdp_intr_mask;
 

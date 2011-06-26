@@ -229,7 +229,7 @@ config MTD_BLOCK
 config MTD_BLOCK_4K
   	bool "Use 4KiB block size for MTD block devices"
   	depends on MTD_BLOCK
-  	default y
+  	default n
   	---help---
     	  Some devices may perform better with bigger block sizes. Use this
     	  option to set block size of MTD block driver to 4KiB.

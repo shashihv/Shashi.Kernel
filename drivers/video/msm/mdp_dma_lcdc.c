@@ -38,10 +38,6 @@
 #include "msm_fb.h"
 #include "mdp4.h"
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#undef CONFIG_HAS_EARLYSUSPEND
-#endif
-
 #ifdef CONFIG_FB_MSM_MDP40
 #define LCDC_BASE	0xC0000
 #define DTV_BASE	0xD0000
@@ -121,7 +117,7 @@ int mdp_lcdc_on(struct platform_device *pdev)
 	buf = (uint8 *) fbi->fix.smem_start;
 	buf += fbi->var.xoffset * bpp + fbi->var.yoffset * fbi->fix.line_length;
 
-	dma2_cfg_reg = DMA_PACK_ALIGN_LSB | DMA_OUT_SEL_LCDC;
+	dma2_cfg_reg = DMA_PACK_ALIGN_LSB | DMA_DITHER_EN | DMA_OUT_SEL_LCDC;
 
 	if (mfd->fb_imgType == MDP_BGR_565)
 		dma2_cfg_reg |= DMA_PACK_PATTERN_BGR;
@@ -308,15 +304,14 @@ int mdp_lcdc_off(struct platform_device *pdev)
 	}
 #endif
 
-	/* LGE_CHANGE, Change lcdc off sequence (dclk off -> vsync,hsync off) */
-	ret = panel_next_off(pdev);
-
 	/* MDP cmd block enable */
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 	MDP_OUTP(MDP_BASE + timer_base, 0);
 	/* MDP cmd block disable */
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 	mdp_pipe_ctrl(block, MDP_BLOCK_POWER_OFF, FALSE);
+
+	ret = panel_next_off(pdev);
 
 	/* delay to make sure the last frame finishes */
 	msleep(16);

@@ -82,6 +82,11 @@ obj-$(CONFIG_FB_MSM_MDDI_HITACHI_HVGA) += mddi_hitachi_hvga.o
 obj-$(CONFIG_FB_MSM_MDDI_NOVATEK_HVGA) += mddi_novatek_hvga.o
 endif
 
+ifeq ($(CONFIG_FB_MSM_MDDI_NOVATEK_HITACHI_HVGA),y)
+obj-y += mddi_hitachi_hvga.o
+obj-y += mddi_novatek_hvga.o
+endif
+
 obj-$(CONFIG_FB_MSM_LCDC_PANEL) += lcdc_panel.o
 obj-$(CONFIG_FB_MSM_LCDC_PRISM_WVGA) += lcdc_prism.o
 obj-$(CONFIG_FB_MSM_LCDC_SAMSUNG_WSVGA) += lcdc_samsung_wsvga.o
@@ -98,12 +103,6 @@ obj-$(CONFIG_FB_MSM_TVOUT_NTSC) += tv_ntsc.o
 obj-$(CONFIG_FB_MSM_TVOUT_PAL) += tv_pal.o
 
 obj-$(CONFIG_FB_MSM_EXTMDDI_SVGA) += mddi_ext_lcd.o
-
-# LGE_CHANGE_S, Add panels
-obj-$(CONFIG_FB_MSM_LCDC_LGIT_WVGA) += lcdc_lgit_wvga.o
-obj-$(CONFIG_FB_MSM_LCDC_HITACHI_WVGA) += lcdc_hitachi_wvga.o
-obj-$(CONFIG_FB_MSM_LCDC_LGIT_HITACHI_WVGA) += lcdc_lgit_wvga.o lcdc_hitachi_wvga.o
-# LGE_CHANGE_E
 
 clean:
 	rm *.o .*cmd

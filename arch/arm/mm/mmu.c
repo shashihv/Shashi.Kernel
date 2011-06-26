@@ -696,7 +696,6 @@ static void __init early_vmalloc(char **arg)
 			"vmalloc area is too big, limiting to %luMB\n",
 			vmalloc_reserve >> 20);
 	}
-
 	vmalloc_min = (void *)(VMALLOC_END - vmalloc_reserve);
 }
 __early_param("vmalloc=", early_vmalloc);
@@ -710,7 +709,7 @@ static void __init sanity_check_meminfo(void)
 		*bank = meminfo.bank[i];
 
 #ifdef CONFIG_HIGHMEM
-		if (__va(bank->start) > vmalloc_min ||
+		if (__va(bank->start) > vmalloc_min||
 		    __va(bank->start) < (void *)PAGE_OFFSET)
 			highmem = 1;
 
@@ -721,7 +720,7 @@ static void __init sanity_check_meminfo(void)
 		 * the vmalloc area greatly simplifying things later.
 		 */
 		if (__va(bank->start) < vmalloc_min &&
-	           bank->size > vmalloc_min - __va(bank->start)) {
+		    bank->size > vmalloc_min - __va(bank->start)) {
 			if (meminfo.nr_banks >= NR_BANKS) {
 				printk(KERN_CRIT "NR_BANKS too low, "
 						 "ignoring high memory\n");
@@ -731,7 +730,7 @@ static void __init sanity_check_meminfo(void)
 				meminfo.nr_banks++;
 				i++;
 				bank[1].size -= vmalloc_min - __va(bank->start);
-			        bank[1].start = __pa(vmalloc_min - 1) + 1;
+				bank[1].start = __pa(vmalloc_min - 1) + 1;
 				bank[1].highmem = highmem = 1;
 				j++;
 			}

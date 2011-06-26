@@ -182,7 +182,7 @@ struct kgsl_ringbuffer {
 
 #define GSL_RB_WRITE(ring, data) \
 	do { \
-		__raw_writel(data, ring); \
+		writel(data, ring); \
 		ring++; \
 	} while (0)
 
@@ -208,7 +208,7 @@ struct kgsl_ringbuffer {
 #define GSL_RB_CNTL_NO_UPDATE 0x0 /* enable */
 #define GSL_RB_GET_READPTR(rb, data) \
 	do { \
-		*(data) = __raw_readl(&(rb)->memptrs->rptr); \
+		*(data) = readl(&(rb)->memptrs->rptr); \
 	} while (0)
 #else
 #define GSL_RB_CNTL_NO_UPDATE 0x1 /* disable */
@@ -222,7 +222,7 @@ struct kgsl_ringbuffer {
 #ifdef GSL_RB_USE_WPTR_POLLING
 #define GSL_RB_CNTL_POLL_EN 0x1 /* enable */
 #define GSL_RB_UPDATE_WPTR_POLLING(rb) \
-	do { __raw_writel((rb)->wptr, &((rb)->memptrs->wptr_poll)); } while (0)
+	do { writel((rb)->wptr, &((rb)->memptrs->wptr_poll)); } while (0)
 #else
 #define GSL_RB_CNTL_POLL_EN 0x0 /* disable */
 #define GSL_RB_UPDATE_WPTR_POLLING(rb)

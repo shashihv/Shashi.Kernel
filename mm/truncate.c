@@ -109,7 +109,6 @@ truncate_complete_page(struct address_space *mapping, struct page *page)
 	clear_page_mlock(page);
 	remove_from_page_cache(page);
 	ClearPageMappedToDisk(page);
-	cleancache_flush_page(mapping, page);
 	page_cache_release(page);	/* pagecache ref */
 	return 0;
 }
@@ -218,6 +217,7 @@ void truncate_inode_pages_range(struct address_space *mapping,
 	int i;
 
 	cleancache_flush_inode(mapping);
+
 	if (mapping->nrpages == 0)
 		return;
 
@@ -291,6 +291,7 @@ void truncate_inode_pages_range(struct address_space *mapping,
 		}
 		pagevec_release(&pvec);
 	}
+
 	cleancache_flush_inode(mapping);
 }
 EXPORT_SYMBOL(truncate_inode_pages_range);
@@ -329,7 +330,6 @@ unsigned long invalidate_mapping_pages(struct address_space *mapping,
 	unsigned long ret = 0;
 	int i;
 
-	cleancache_flush_inode(mapping);
 	pagevec_init(&pvec, 0);
 	while (next <= end &&
 			pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE)) {
@@ -429,6 +429,8 @@ int invalidate_inode_pages2_range(struct address_space *mapping,
 	int did_range_unmap = 0;
 	int wrapped = 0;
 
+	cleancache_flush_inode(mapping);
+
 	pagevec_init(&pvec, 0);
 	next = start;
 	while (next <= end && !wrapped &&
@@ -485,6 +487,7 @@ int invalidate_inode_pages2_range(struct address_space *mapping,
 		pagevec_release(&pvec);
 		cond_resched();
 	}
+
 	cleancache_flush_inode(mapping);
 	return ret;
 }

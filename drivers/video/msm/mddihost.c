@@ -34,10 +34,6 @@
 #include <linux/clk.h>
 #include <mach/clk.h>
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#undef CONFIG_HAS_EARLYSUSPEND
-#endif
-
 struct semaphore mddi_host_mutex;
 
 struct clk *mddi_io_clk;

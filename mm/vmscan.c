@@ -127,7 +127,7 @@ struct scan_control {
 /*
  * From 0 .. 100.  Higher means more swappy.
  */
-int vm_swappiness = 30;
+int vm_swappiness = 50;
 long vm_total_pages;	/* The total number of pages which the VM controls */
 
 static LIST_HEAD(shrinker_list);
@@ -210,8 +210,11 @@ unsigned long shrink_slab(unsigned long scanned, gfp_t gfp_mask,
 	if (scanned == 0)
 		scanned = SWAP_CLUSTER_MAX;
 
-	if (!down_read_trylock(&shrinker_rwsem))
-		return 1;	/* Assume we'll be able to shrink next time */
+	if (!down_read_trylock(&shrinker_rwsem)) {
+	    /* Assume we'll be able to shrink next time */
+	    ret = 1;
+	    goto out;
+  	}
 
 	list_for_each_entry(shrinker, &shrinker_list, list) {
 		unsigned long long delta;
@@ -260,6 +263,9 @@ unsigned long shrink_slab(unsigned long scanned, gfp_t gfp_mask,
 		shrinker->nr += total_scan;
 	}
 	up_read(&shrinker_rwsem);
+
+out:
+  	cond_resched();
 	return ret;
 }
 
@@ -1619,11 +1625,11 @@ static void shrink_zone(int priority, struct zone *zone,
 	unsigned long swap_cluster_max = sc->swap_cluster_max;
 	struct zone_reclaim_stat *reclaim_stat = get_reclaim_stat(zone, sc);
 	int noswap = 0;
-
 	int force_scan = 0;
-  
+ 
        anon  = zone_nr_lru_pages(zone, sc, LRU_ACTIVE_ANON) +
                zone_nr_lru_pages(zone, sc, LRU_INACTIVE_ANON);
+
        file  = zone_nr_lru_pages(zone, sc, LRU_ACTIVE_FILE) +
                zone_nr_lru_pages(zone, sc, LRU_INACTIVE_FILE);
 
@@ -1654,7 +1660,6 @@ static void shrink_zone(int priority, struct zone *zone,
 			scan = (scan * percent[file]) / 100;
 		}
 		if (!scan && force_scan) {
-
         if (file)
       scan = SWAP_CLUSTER_MAX;
         else if (!noswap)

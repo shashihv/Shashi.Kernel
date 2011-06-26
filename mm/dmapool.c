@@ -361,7 +361,7 @@ static struct dma_page *pool_find_page(struct dma_pool *pool, dma_addr_t dma)
 		if (dma < (page->dma + pool->allocation))
 			return page;
 	}
-	
+
 	return NULL;
 }
 
@@ -397,7 +397,7 @@ void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t dma)
 	offset = vaddr - page->vaddr;
 #ifdef	DMAPOOL_DEBUG
 	if ((dma - page->dma) != offset) {
-		spin_unlock_irqrestore(&pool->lock, flags)
+		spin_unlock_irqrestore(&pool->lock, flags);
 		if (pool->dev)
 			dev_err(pool->dev,
 				"dma_pool_free %s, %p (bad vaddr)/%Lx\n",
@@ -429,7 +429,6 @@ void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t dma)
 	}
 	memset(vaddr, POOL_POISON_FREED, pool->size);
 #endif
-
 	page->in_use--;
 	*(int *)vaddr = page->offset;
 	page->offset = offset;

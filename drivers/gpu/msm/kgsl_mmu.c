@@ -19,8 +19,6 @@
 #include <linux/mutex.h>
 #include <linux/spinlock.h>
 #include <linux/genalloc.h>
-#include <linux/slab.h>
-#include <linux/io.h>
 #ifdef CONFIG_MSM_KGSL_MMU
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
@@ -91,13 +89,13 @@ uint32_t kgsl_pt_entry_get(struct kgsl_pagetable *pt, uint32_t va)
 uint32_t kgsl_pt_map_get(struct kgsl_pagetable *pt, uint32_t pte)
 {
 	uint32_t *baseptr = (uint32_t *)pt->base.hostptr;
-	return __raw_readl(&baseptr[pte]);
+	return baseptr[pte];
 }
 
 void kgsl_pt_map_set(struct kgsl_pagetable *pt, uint32_t pte, uint32_t val)
 {
 	uint32_t *baseptr = (uint32_t *)pt->base.hostptr;
-	__raw_writel(val, &baseptr[pte]);
+	writel(val, &baseptr[pte]);
 }
 #define GSL_PT_MAP_DEBUG(pte)	((struct kgsl_pte_debug *) \
 		&gsl_pt_map_get(pagetable, pte))
@@ -115,7 +113,7 @@ void kgsl_pt_map_setaddr(struct kgsl_pagetable *pt, uint32_t pte,
 	uint32_t val = baseptr[pte];
 	val &= ~GSL_PT_PAGE_ADDR_MASK;
 	val |= (pageaddr & GSL_PT_PAGE_ADDR_MASK);
-	__raw_writel(val, &baseptr[pte]);
+	baseptr[pte] = val;
 }
 
 void kgsl_pt_map_resetall(struct kgsl_pagetable *pt, uint32_t pte)
@@ -140,7 +138,7 @@ int kgsl_pt_map_isdirty(struct kgsl_pagetable *pt, uint32_t pte)
 uint32_t kgsl_pt_map_getaddr(struct kgsl_pagetable *pt, uint32_t pte)
 {
 	uint32_t *baseptr = (uint32_t *)pt->base.hostptr;
-	return __raw_readl(&baseptr[pte]) & GSL_PT_PAGE_ADDR_MASK;
+	return readl(&baseptr[pte]) & GSL_PT_PAGE_ADDR_MASK;
 }
 
 void kgsl_mh_intrcallback(struct kgsl_device *device)
@@ -215,6 +213,7 @@ static struct kgsl_pagetable *kgsl_mmu_createpagetableobject(
 {
 	int status = 0;
 	struct kgsl_pagetable *pagetable = NULL;
+	uint32_t flags;
 
 	KGSL_MEM_VDBG("enter (mmu=%p)\n", mmu);
 
@@ -257,8 +256,11 @@ static struct kgsl_pagetable *kgsl_mmu_createpagetableobject(
 	}
 
 	/* allocate page table memory */
-	status = kgsl_sharedmem_alloc_coherent(&pagetable->base,
-                                     pagetable->max_entries * GSL_PTE_SIZE);
+	flags = (KGSL_MEMFLAGS_ALIGN4K | KGSL_MEMFLAGS_CONPHYS
+		 | KGSL_MEMFLAGS_STRICTREQUEST);
+	status = kgsl_sharedmem_alloc(flags,
+				      pagetable->max_entries * GSL_PTE_SIZE,
+				      &pagetable->base);
 
 	if (status == 0) {
 		/* reset page table entries
@@ -386,6 +388,7 @@ int kgsl_mmu_init(struct kgsl_device *device)
 	 * call this with the global lock held
 	 */
 	int status;
+	uint32_t flags;
 	struct kgsl_mmu *mmu = &device->mmu;
 
 	KGSL_MEM_VDBG("enter (device=%p)\n", device);
@@ -421,7 +424,9 @@ int kgsl_mmu_init(struct kgsl_device *device)
 		/* allocate memory used for completing r/w operations that
 		 * cannot be mapped by the MMU
 		 */
-		status = kgsl_sharedmem_alloc_coherent(&mmu->dummyspace, 64);
+		flags = (KGSL_MEMFLAGS_ALIGN4K | KGSL_MEMFLAGS_CONPHYS
+			 | KGSL_MEMFLAGS_STRICTREQUEST);
+		status = kgsl_sharedmem_alloc(flags, 64, &mmu->dummyspace);
 		if (status != 0) {
 			KGSL_MEM_ERR
 			    ("Unable to allocate dummy space memory.\n");

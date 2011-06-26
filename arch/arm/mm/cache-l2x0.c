@@ -36,9 +36,9 @@ static inline void sync_writel(unsigned long val, unsigned long reg,
 	unsigned long flags;
 
 	spin_lock_irqsave(&l2x0_lock, flags);
-	writel_relaxed(val, l2x0_base + reg);
+	writel(val, l2x0_base + reg);
 	/* wait for the operation to complete */
-	while (readl_relaxed(l2x0_base + reg) & complete_mask)
+	while (readl(l2x0_base + reg) & complete_mask)
 		;
 	spin_unlock_irqrestore(&l2x0_lock, flags);
 }
@@ -93,19 +93,17 @@ static void l2x0_inv_range_atomic(unsigned long start, unsigned long end)
 
 	if (start & (CACHE_LINE_SIZE - 1)) {
 		start &= ~(CACHE_LINE_SIZE - 1);
-		writel_relaxed(start, l2x0_base + L2X0_CLEAN_INV_LINE_PA);
+		writel(start, l2x0_base + L2X0_CLEAN_INV_LINE_PA);
 		start += CACHE_LINE_SIZE;
 	}
 
 	if (end & (CACHE_LINE_SIZE - 1)) {
 		end &= ~(CACHE_LINE_SIZE - 1);
-		writel_relaxed(end, l2x0_base + L2X0_CLEAN_INV_LINE_PA);
+		writel(end, l2x0_base + L2X0_CLEAN_INV_LINE_PA);
 	}
 
 	for (addr = start; addr < end; addr += CACHE_LINE_SIZE)
-		writel_relaxed(addr, l2x0_base + L2X0_INV_LINE_PA);
-
-	mb();
+		writel(addr, l2x0_base + L2X0_INV_LINE_PA);
 }
 
 static void l2x0_clean_range(unsigned long start, unsigned long end)
@@ -124,9 +122,7 @@ static void l2x0_clean_range_atomic(unsigned long start, unsigned long end)
 
 	start &= ~(CACHE_LINE_SIZE - 1);
 	for (addr = start; addr < end; addr += CACHE_LINE_SIZE)
-		writel_relaxed(addr, l2x0_base + L2X0_CLEAN_LINE_PA);
-
-	mb();
+		writel(addr, l2x0_base + L2X0_CLEAN_LINE_PA);
 }
 
 static void l2x0_flush_range(unsigned long start, unsigned long end)
@@ -145,9 +141,7 @@ void l2x0_flush_range_atomic(unsigned long start, unsigned long end)
 
 	start &= ~(CACHE_LINE_SIZE - 1);
 	for (addr = start; addr < end; addr += CACHE_LINE_SIZE)
-		writel_relaxed(addr, l2x0_base + L2X0_CLEAN_INV_LINE_PA);
-
-	mb();
+		writel(addr, l2x0_base + L2X0_CLEAN_INV_LINE_PA);
 }
 
 void __init l2x0_init(void __iomem *base, __u32 aux_val, __u32 aux_mask)
@@ -157,23 +151,23 @@ void __init l2x0_init(void __iomem *base, __u32 aux_val, __u32 aux_mask)
 	l2x0_base = base;
 
 	/* disable L2X0 */
-	bits = readl_relaxed(l2x0_base + L2X0_CTRL);
+	bits = readl(l2x0_base + L2X0_CTRL);
 	bits &= ~0x01;	/* clear bit 0 */
-	writel_relaxed(bits, l2x0_base + L2X0_CTRL);
+	writel(bits, l2x0_base + L2X0_CTRL);
 
-	bits = readl_relaxed(l2x0_base + L2X0_AUX_CTRL);
+	bits = readl(l2x0_base + L2X0_AUX_CTRL);
 	bits &= aux_mask;
 	bits |= aux_val;
-	writel_relaxed(bits, l2x0_base + L2X0_AUX_CTRL);
+	writel(bits, l2x0_base + L2X0_AUX_CTRL);
 
 	l2x0_inv_all();
 
 	/* enable L2X0 */
-	bits = readl_relaxed(l2x0_base + L2X0_CTRL);
+	bits = readl(l2x0_base + L2X0_CTRL);
 	bits |= 0x01;	/* set bit 0 */
-	writel_relaxed(bits, l2x0_base + L2X0_CTRL);
+	writel(bits, l2x0_base + L2X0_CTRL);
 
-	bits = readl_relaxed(l2x0_base + L2X0_CACHE_ID);
+	bits = readl(l2x0_base + L2X0_CACHE_ID);
 	bits >>= 6;	/* part no, bit 6 to 9 */
 	bits &= 0x0f;	/* 4 bits */
 
@@ -194,11 +188,11 @@ void __init l2x0_init(void __iomem *base, __u32 aux_val, __u32 aux_mask)
 void l2x0_suspend(void)
 {
 	/* Save aux control register value */
-	aux_ctrl_save = readl_relaxed(l2x0_base + L2X0_AUX_CTRL);
+	aux_ctrl_save = readl(l2x0_base + L2X0_AUX_CTRL);
 	/* Flush all cache */
 	l2x0_flush_all();
 	/* Disable the cache */
-	writel_relaxed(0, l2x0_base + L2X0_CTRL);
+	writel(0, l2x0_base + L2X0_CTRL);
 
 	/* Memory barrier */
 	dmb();
@@ -208,17 +202,15 @@ void l2x0_resume(int collapsed)
 {
 	if (collapsed) {
 		/* Disable the cache */
-		writel_relaxed(0, l2x0_base + L2X0_CTRL);
+		writel(0, l2x0_base + L2X0_CTRL);
 
 		/* Restore aux control register value */
-		writel_relaxed(aux_ctrl_save, l2x0_base + L2X0_AUX_CTRL);
+		writel(aux_ctrl_save, l2x0_base + L2X0_AUX_CTRL);
 
 		/* Invalidate the cache */
 		l2x0_inv_all();
 	}
 
 	/* Enable the cache */
-	writel_relaxed(1, l2x0_base + L2X0_CTRL);
-
-	mb();
+	writel(1, l2x0_base + L2X0_CTRL);
 }

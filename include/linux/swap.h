@@ -145,6 +145,7 @@ enum {
 	SWP_DISCARDABLE = (1 << 2),	/* blkdev supports discard */
 	SWP_DISCARDING	= (1 << 3),	/* now discarding a free cluster */
 	SWP_SOLIDSTATE	= (1 << 4),	/* blkdev seeks are cheap */
+	SWP_BLKDEV      = (1 << 6),     /* its a block device */
 					/* add others here before... */
 	SWP_SCANNING	= (1 << 8),	/* refcount in scan_swap_map */
 };
@@ -199,7 +200,6 @@ extern unsigned int nr_free_pagecache_pages(void);
 
 
 /* linux/mm/swap.c */
-extern void ____lru_cache_add(struct page *, enum lru_list lru, int tail);
 extern void __lru_cache_add(struct page *, enum lru_list lru);
 extern void lru_cache_add_lru(struct page *, enum lru_list lru);
 extern void activate_page(struct page *);
@@ -220,14 +220,9 @@ static inline void lru_cache_add_anon(struct page *page)
 	__lru_cache_add(page, LRU_INACTIVE_ANON);
 }
 
-static inline void lru_cache_add_file_tail(struct page *page, int tail)
-{
-  ____lru_cache_add(page, LRU_INACTIVE_FILE, tail);
-}
-
 static inline void lru_cache_add_file(struct page *page)
 {
-	____lru_cache_add(page, LRU_INACTIVE_FILE, 0);
+	__lru_cache_add(page, LRU_INACTIVE_FILE);
 }
 
 #define ISOLATE_INACTIVE 0

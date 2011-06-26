@@ -568,9 +568,9 @@ static int msm_startup(struct uart_port *port)
 		return ret;
 
 	if (unlikely(set_irq_wake(port->irq, 1))) {
-      	    free_irq(port->irq, port);
-      	    return -ENXIO;
- 	}	
+	      free_irq(port->irq, port);
+      		return -ENXIO;
+  	}
 
 	msm_init_clock(port);
 

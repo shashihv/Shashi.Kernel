@@ -1,1 +1,1 @@
-#define UTS_RELEASE "2.6.32.39-franco.Kernel.v17.1"
+#define UTS_RELEASE "2.6.32.41-franco.Kernel.v18"

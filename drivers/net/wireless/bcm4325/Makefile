@@ -12,6 +12,8 @@
 #
 # $Id: makefile.26,v 1.1.144.1 2008/05/07 22:53:44 Exp $
 
+subdir-ccflags-y += -Os
+
 obj-$(CONFIG_BCM4325) += wireless.o
 
 obj-$(CONFIG_BRCM_USE_STATIC_BUF) += brcm_static_buf.o

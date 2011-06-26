@@ -264,13 +264,12 @@ struct vmap_area {
 static DEFINE_SPINLOCK(vmap_area_lock);
 static LIST_HEAD(vmap_area_list);
 static struct rb_root vmap_area_root = RB_ROOT;
+static unsigned long vmap_area_pcpu_hole;
 
-/* The vmap cache globals are protected by vmap_area_lock */
 static struct rb_node *free_vmap_cache;
 static unsigned long cached_hole_size;
 static unsigned long cached_start;
 static unsigned long cached_align;
-static unsigned long vmap_area_pcpu_hole;
 
 static struct vmap_area *__find_vmap_area(unsigned long addr)
 {
@@ -350,21 +349,21 @@ static struct vmap_area *alloc_vmap_area(unsigned long size,
 		return ERR_PTR(-ENOMEM);
 
 retry:
-
 	spin_lock(&vmap_area_lock);
-	/* invalidate cache if we have more permissive parameters */
+	 /* invalidate cache if we have more permissive parameters */
   if (!free_vmap_cache ||
-      size <= cached_hole_size ||
-      vstart < cached_start ||
-      align < cached_align) {
+    size <= cached_hole_size ||
+    vstart < cached_start ||
+    align < cached_align) {
 nocache:
-    cached_hole_size = 0;
-    free_vmap_cache = NULL;
+      cached_hole_size = 0;
+      free_vmap_cache = NULL;
   }
+  
   /* record if we encounter less permissive parameters */
   cached_start = vstart;
   cached_align = align;
-
+  
   /* find starting point for our search */
   if (free_vmap_cache) {
     first = rb_entry(free_vmap_cache, struct vmap_area, rb_node);
@@ -373,17 +372,16 @@ nocache:
       goto nocache;
     if (addr + size - 1 < addr)
       goto overflow;
-
   } else {
     addr = ALIGN(vstart, align);
     if (addr + size - 1 < addr)
       goto overflow;
 
-	n = vmap_area_root.rb_node;
-	    if (!n)
-	      goto found;
-
-	    first = NULL;
+    n = vmap_area_root.rb_node;
+    if (!n)
+      goto found;
+      
+    first = NULL;
 
 		do {
 			struct vmap_area *tmp;
@@ -402,20 +400,21 @@ nocache:
 			goto found;
 
 		if (first->va_start < addr) {
-	      	   addr = ALIGN(max(first->va_end + PAGE_SIZE, addr), align);
+     		 addr = ALIGN(max(first->va_end + PAGE_SIZE, addr), align);
 			if (addr + size - 1 < addr)
 				goto overflow;
+
 			n = rb_next(&first->rb_node);
 			if (n)
 				first = rb_entry(n, struct vmap_area, rb_node);
 			else
 				goto found;
 		}
-		BUG_ON(first->va_start < addr);
+		 BUG_ON(first->va_start < addr);
     if (addr + cached_hole_size < first->va_start)
       cached_hole_size = first->va_start - addr;
   }
-
+  
   /* from the starting point, walk areas until a suitable hole is found */
   while (addr + size > first->va_start && addr + size <= vend) {
     if (addr + cached_hole_size < first->va_start)
@@ -423,14 +422,13 @@ nocache:
     addr = ALIGN(first->va_end, align);
     if (addr + size - 1 < addr)
       goto overflow;
-
+    
     n = rb_next(&first->rb_node);
     if (n)
-      first = rb_entry(n, struct vmap_area, rb_node);
+        first = rb_entry(n, struct vmap_area, rb_node);
     else
-      goto found;
+        goto found;
 	}
-
 found:
 	if (addr + size > vend) {
 overflow:
@@ -473,18 +471,19 @@ static void __free_vmap_area(struct vmap_area *va)
 {
 	BUG_ON(RB_EMPTY_NODE(&va->rb_node));
 
-if (free_vmap_cache) {
-    if (va->va_end < cached_start) {
-      free_vmap_cache = NULL;
-    } else {
-      struct vmap_area *cache;
-      cache = rb_entry(free_vmap_cache, struct vmap_area, rb_node);
-      if (va->va_start <= cache->va_start) {
-        free_vmap_cache = rb_prev(&va->rb_node);
-        cache = rb_entry(free_vmap_cache, struct vmap_area, rb_node);
-      }
-    }
-  }
+	if (free_vmap_cache) {
+      if (va->va_end < cached_start) {
+    free_vmap_cache = NULL;
+            } else {
+                struct vmap_area *cache;
+                cache = rb_entry(free_vmap_cache, struct vmap_area, rb_node);
+                if (va->va_start <= cache->va_start) {
+                  free_vmap_cache = rb_prev(&va->rb_node);
+                    cache = rb_entry(free_vmap_cache, struct vmap_area, rb_node);
+                }
+            }
+        }
+
 	rb_erase(&va->rb_node, &vmap_area_root);
 	RB_CLEAR_NODE(&va->rb_node);
 	list_del_rcu(&va->list);
