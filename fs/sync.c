@@ -91,19 +91,9 @@ EXPORT_SYMBOL_GPL(sync_filesystem);
  */
 static void sync_filesystems(int wait)
 {
-	struct super_block *sb;
-	static DEFINE_MUTEX(mutex);
-
-	mutex_lock(&mutex);		/* Could be down_interruptible */
+	struct super_block *sb, *n;
 	spin_lock(&sb_lock);
-	list_for_each_entry(sb, &super_blocks, s_list)
-		sb->s_need_sync = 1;
-
-restart:
-	list_for_each_entry(sb, &super_blocks, s_list) {
-		if (!sb->s_need_sync)
-			continue;
-		sb->s_need_sync = 0;
+	list_for_each_entry_safe(sb, n, &super_blocks, s_list) {
 		sb->s_count++;
 		spin_unlock(&sb_lock);
 
@@ -114,11 +104,9 @@ restart:
 
 		/* restart only when sb is no longer on the list */
 		spin_lock(&sb_lock);
-		if (__put_super_and_need_restart(sb))
-			goto restart;
+		__put_super(sb);
 	}
 	spin_unlock(&sb_lock);
-	mutex_unlock(&mutex);
 }
 
 /*

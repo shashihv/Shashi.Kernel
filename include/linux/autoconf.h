@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Linux kernel version: 2.6.32.41
- * Sat Jun 25 23:52:26 2011
+ * Mon Jun 27 01:32:29 2011
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_VIDEO_V4L1_COMPAT 1
@@ -492,8 +492,9 @@
 #define CONFIG_MSM_RESET_MODEM_MODULE 1
 #define CONFIG_VECTORS_BASE 0xffff0000
 #define CONFIG_BRCM_LGE_WL_HOSTWAKEUP_IOCTL 1
+#define CONFIG_SCHED_BFS 1
 #define CONFIG_SND_MSM_DAI_SOC 1
-#define CONFIG_HZ 100
+#define CONFIG_HZ 250
 #define CONFIG_NETFILTER_XT_MATCH_HELPER 1
 #define CONFIG_CPU_32v6K 1
 #define CONFIG_CPU_HAS_ASID 1

@@ -2525,5 +2525,19 @@ static int __init proc_vmalloc_init(void)
 	return 0;
 }
 module_init(proc_vmalloc_init);
+
+static inline void *__vmalloc_node_flags(unsigned long size,
+          int node, gfp_t flags)
+{
+  return __vmalloc_node(size, 1, flags, PAGE_KERNEL,
+        node, __builtin_return_address(0));
+}
+
+void *vzalloc(unsigned long size)
+{
+  return __vmalloc_node_flags(size, -1,
+        GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO);
+}
+
 #endif
 
