@@ -4,6 +4,7 @@
 # create a compressed vmlinuz image from the original vmlinux
 #
 
+AFLAGS_head.o += -DTEXT_OFFSET=$(TEXT_OFFSET)
 HEAD	= head.o
 OBJS	= misc.o decompress.o
 FONTC	= $(srctree)/drivers/video/console/font_acorn_8x8.c
@@ -76,21 +77,18 @@ ORIG_CFLAGS := $(KBUILD_CFLAGS)
 KBUILD_CFLAGS = $(subst -pg, , $(ORIG_CFLAGS))
 endif
 
-EXTRA_CFLAGS  := -fpic -fno-builtin
-EXTRA_AFLAGS  := -Wa,-march=all
+ccflags-y := -fpic -fno-builtin
+asflags-y := -Wa,-march=all
 
+LDFLAGS_vmlinux = --defsym _image_size=$(shell stat -c "%s" $(obj)/../Image)
 # Supply ZRELADDR, INITRD_PHYS and PARAMS_PHYS to the decompressor via
 # linker symbols.  We only define initrd_phys and params_phys if the
 # machine class defined the corresponding makefile variable.
-LDFLAGS_vmlinux := --defsym zreladdr=$(ZRELADDR)
+ifneq ($(CONFIG_AUTO_ZRELADDR),y)
+LDFLAGS_vmlinux += --defsym zreladdr=$(ZRELADDR)
+endif
 ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
 LDFLAGS_vmlinux += --be8
-endif
-ifneq ($(INITRD_PHYS),)
-LDFLAGS_vmlinux += --defsym initrd_phys=$(INITRD_PHYS)
-endif
-ifneq ($(PARAMS_PHYS),)
-LDFLAGS_vmlinux += --defsym params_phys=$(PARAMS_PHYS)
 endif
 # ?
 LDFLAGS_vmlinux += -p

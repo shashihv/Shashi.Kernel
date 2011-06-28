@@ -1,0 +1,1 @@
+cmd_drivers/mtd/tests/mtd_speedtest.ko := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o drivers/mtd/tests/mtd_speedtest.ko drivers/mtd/tests/mtd_speedtest.o drivers/mtd/tests/mtd_speedtest.mod.o
