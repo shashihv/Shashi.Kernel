@@ -551,6 +551,7 @@ static void mmc_sd_remove(struct mmc_host *host)
 
 	mmc_remove_card(host->card);
 	host->card = NULL;
+	mmc_release_host(host);
 }
 
 /*
