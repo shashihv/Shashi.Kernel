@@ -1,1 +1,0 @@
-cmd_arch/arm/mach-msm/reset_modem.ko := /home/francisco/Desktop/arm-2011.03/bin/arm-none-eabi-ld -EL -r  -T /home/francisco/Desktop/franco.Kernel/scripts/module-common.lds --build-id -o arch/arm/mach-msm/reset_modem.ko arch/arm/mach-msm/reset_modem.o arch/arm/mach-msm/reset_modem.mod.o
